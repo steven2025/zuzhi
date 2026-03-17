@@ -1,0 +1,3975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>组织结构认知及设计平台</title>
+  <style>
+    :root {
+      --bg: #06101d;
+      --panel: rgba(11, 22, 38, 0.84);
+      --panel-soft: rgba(255, 255, 255, 0.05);
+      --line: rgba(255, 255, 255, 0.1);
+      --line-strong: rgba(77, 230, 255, 0.24);
+      --text: #eef7ff;
+      --muted: #9fb4c9;
+      --cyan: #4de6ff;
+      --blue: #5f89ff;
+      --purple: #9a6fff;
+      --green: #2fe2b5;
+      --danger: #ff758f;
+      --warning: #ffc75f;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 20%, rgba(77, 230, 255, 0.16), transparent 18%),
+        radial-gradient(circle at 90% 10%, rgba(154, 111, 255, 0.15), transparent 20%),
+        radial-gradient(circle at 50% 100%, rgba(95, 137, 255, 0.12), transparent 24%),
+        linear-gradient(180deg, #06101d 0%, #081423 100%);
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: min(1440px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 40px;
+    }
+
+    .glass {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .hidden { display: none !important; }
+
+    .hero {
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(77,230,255,0.14), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(95,137,255,0.12), transparent 24%);
+      pointer-events: none;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(77, 230, 255, 0.22);
+      background: rgba(77, 230, 255, 0.1);
+      color: #c8f9ff;
+      font-size: 13px;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.08;
+      letter-spacing: 0.02em;
+    }
+
+    .sub {
+      max-width: 980px;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 15px;
+    }
+
+    .status-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px;
+      margin-top: 20px;
+    }
+
+    .home-card {
+      position: relative;
+      min-height: 360px;
+      border-radius: 30px;
+      padding: 1px;
+      transform-style: preserve-3d;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+      cursor: pointer;
+    }
+
+    .home-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 30px;
+      background: var(--grad);
+      opacity: 0.92;
+    }
+
+    .home-inner {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      border-radius: 29px;
+      background: rgba(6, 16, 29, 0.92);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .home-inner::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(77,230,255,0.14), transparent 25%),
+        radial-gradient(circle at bottom left, rgba(154,111,255,0.12), transparent 22%);
+      pointer-events: none;
+    }
+
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .col { display: flex; flex-direction: column; gap: 10px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .card-title { font-size: 34px; font-weight: 700; }
+    .card-desc { color: var(--muted); line-height: 1.7; }
+
+    .hidden-menu {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      display: grid;
+      gap: 10px;
+    }
+
+    .menu-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #d7e8f7;
+      font-size: 14px;
+    }
+
+    .neon-btn, .ghost-btn, .danger-btn, .small-btn, .link-btn, .mode-btn, .view-btn, .mini-btn {
+      appearance: none;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      font-family: inherit;
+    }
+
+    .neon-btn {
+      border: 1px solid rgba(77,230,255,0.32);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(77,230,255,0.18), rgba(95,137,255,0.16));
+      color: white;
+      padding: 12px 18px;
+      font-weight: 600;
+      box-shadow: 0 0 24px rgba(77,230,255,0.12);
+    }
+
+    .neon-btn:hover, .small-btn:hover, .mode-btn:hover, .view-btn:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 0 34px rgba(77,230,255,0.2);
+    }
+
+    .ghost-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 10px 14px;
+    }
+
+    .danger-btn {
+      border: 1px solid rgba(255,117,143,0.28);
+      background: rgba(255,117,143,0.12);
+      color: #ffd7e0;
+      border-radius: 16px;
+      padding: 10px 14px;
+    }
+
+    .small-btn, .mode-btn, .view-btn {
+      border: 1px solid rgba(77,230,255,0.24);
+      background: rgba(77,230,255,0.1);
+      color: white;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .mode-btn.active, .view-btn.active {
+      border-color: rgba(47,226,181,0.38);
+      background: linear-gradient(135deg, rgba(47,226,181,0.24), rgba(77,230,255,0.16));
+      box-shadow: 0 0 28px rgba(47,226,181,0.16);
+    }
+
+
+    .view-btn.locked, .view-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: saturate(0.55);
+      box-shadow: none;
+      transform: none;
+    }
+
+    .view-btn.locked:hover, .view-btn:disabled:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .link-btn {
+      border: none;
+      background: transparent;
+      color: #86c8ff;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .left-rail {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .login-panel {
+      padding: 12px 14px;
+      width: 100%;
+    }
+
+    .login-panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: nowrap;
+      margin-bottom: 10px;
+    }
+
+    .login-panel-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .login-panel-sub {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+      margin-top: 4px;
+    }
+
+    .login-panel .grid-2 {
+      align-items: end;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .login-panel .field-label {
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .login-panel input {
+      min-height: 40px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+
+    .login-panel .badge {
+      padding: 4px 9px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .login-panel .neon-btn,
+    .login-panel .ghost-btn {
+      border-radius: 14px;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
+    .login-status-box {
+      margin-top: 10px;
+      font-size: 12px;
+      line-height: 1.55;
+      padding: 10px 12px;
+      border-radius: 14px;
+    }
+
+    .login-welcome {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      border: 1px solid rgba(47,226,181,0.2);
+      border-radius: 16px;
+      background: rgba(47,226,181,0.08);
+      padding: 10px 12px;
+      color: #dffff4;
+    }
+
+    .login-welcome strong {
+      font-size: 15px;
+    }
+
+    .access-locked-tip {
+      margin-top: 10px;
+      font-size: 12px;
+      line-height: 1.55;
+      padding: 10px 12px;
+      border-radius: 14px;
+    }
+
+    .login-locked {
+      opacity: 0.52 !important;
+      cursor: not-allowed !important;
+      filter: saturate(0.55);
+      pointer-events: none;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .page-title { font-size: 30px; font-weight: 700; }
+    .page-note { color: var(--muted); font-size: 14px; }
+
+    .module-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+    }
+
+    .side-nav {
+      padding: 16px;
+      height: fit-content;
+      position: sticky;
+      top: 18px;
+    }
+
+    .nav-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .nav-list { display: grid; gap: 10px; }
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .nav-btn.active {
+      border-color: var(--line-strong);
+      background: linear-gradient(135deg, rgba(77,230,255,0.16), rgba(95,137,255,0.12));
+      box-shadow: 0 0 24px rgba(77,230,255,0.12);
+    }
+
+    .panel-stack { display: grid; gap: 18px; }
+
+    .section {
+      padding: 18px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-title { font-size: 20px; font-weight: 700; }
+    .section-sub { color: var(--muted); font-size: 13px; margin-top: 4px; line-height: 1.8; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+    .field-group { display: grid; gap: 10px; }
+    .field-label { font-size: 13px; color: var(--muted); }
+
+    input[type="text"], input[type="password"], input[type="file"], select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(4,10,18,0.72);
+      color: white;
+      padding: 13px 14px;
+      outline: none;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    textarea { min-height: 180px; resize: vertical; }
+    select { cursor: pointer; }
+
+    .radio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .radio-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .radio-card.active {
+      border-color: var(--line-strong);
+      background: linear-gradient(135deg, rgba(77,230,255,0.14), rgba(95,137,255,0.1));
+      box-shadow: 0 0 22px rgba(77,230,255,0.08);
+    }
+
+    .radio-title { font-weight: 700; }
+    .radio-desc { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+    .notice, .success, .warning, .danger {
+      border-radius: 18px;
+      padding: 14px 16px;
+      line-height: 1.7;
+      font-size: 14px;
+      border: 1px solid;
+    }
+
+    .notice { background: rgba(77,230,255,0.08); border-color: rgba(77,230,255,0.18); color: #ddfbff; }
+    .success { background: rgba(47,226,181,0.08); border-color: rgba(47,226,181,0.18); color: #dffff4; }
+    .warning { background: rgba(255,199,95,0.08); border-color: rgba(255,199,95,0.18); color: #fff3d2; }
+    .danger { background: rgba(255,117,143,0.08); border-color: rgba(255,117,143,0.18); color: #ffe1e7; }
+
+    .confirm-btn {
+      border: 1px solid rgba(77,230,255,0.28);
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(77,230,255,0.22), rgba(95,137,255,0.16));
+      color: #f4fbff;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .confirm-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(0.15);
+    }
+
+    .confirm-btn.done {
+      background: rgba(47,226,181,0.18);
+      border-color: rgba(47,226,181,0.28);
+    }
+
+    .toolbar-right-group { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+
+    .kv-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      padding: 14px;
+    }
+
+    .kv-key { color: var(--muted); font-size: 12px; }
+    .kv-value { margin-top: 6px; font-size: 14px; color: white; word-break: break-word; }
+
+    .window {
+      position: relative;
+      border-radius: 24px;
+      border: 1px solid rgba(77,230,255,0.18);
+      background: rgba(8,17,30,0.74);
+      padding: 12px;
+      box-shadow: 0 0 36px rgba(77,230,255,0.08);
+      min-height: 280px;
+      resize: both;
+      overflow: auto;
+    }
+
+    .window-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      font-size: 13px;
+      cursor: move;
+      user-select: none;
+    }
+
+    .window-content {
+      min-height: 200px;
+      border-radius: 18px;
+      border: 1px dashed rgba(77,230,255,0.2);
+      background: linear-gradient(135deg, rgba(77,230,255,0.07), rgba(95,137,255,0.05));
+      padding: 18px;
+      color: #d7e8f7;
+      line-height: 1.75;
+    }
+
+    .resource-box, .analysis-card, .question, .blm-card, .ctrl-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
+      padding: 16px;
+    }
+
+    .analysis-card { margin-bottom: 10px; }
+
+    .qa-list { display: grid; gap: 14px; }
+    .question-title { font-weight: 700; margin-bottom: 12px; }
+    .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(4,10,18,0.6);
+      padding: 12px;
+      cursor: pointer;
+      transition: border-color 0.12s ease, background 0.12s ease;
+    }
+
+    .option:hover { border-color: rgba(77,230,255,0.28); background: rgba(77,230,255,0.08); }
+    .option input { accent-color: var(--cyan); }
+
+    .result-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .score-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      padding: 14px;
+    }
+
+    .score-title { color: var(--muted); font-size: 12px; }
+    .score-value { margin-top: 6px; font-size: 20px; font-weight: 700; }
+
+    .blm-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .blm-rail {
+      position: sticky;
+      top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.04);
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .blm-rail-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+      padding-top: 12px;
+    }
+
+    .blm-rail-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      background: rgba(4,10,18,0.5);
+      color: var(--text);
+      padding: 12px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .blm-rail-btn span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.55;
+    }
+
+    .blm-rail-btn.active {
+      border-color: rgba(77,230,255,0.24);
+      background: linear-gradient(135deg, rgba(77,230,255,0.14), rgba(95,137,255,0.12));
+      box-shadow: 0 0 24px rgba(77,230,255,0.1);
+    }
+
+    .blm-view-panel.hidden { display:none; }
+    .blm-view-panel.active { display:block; }
+    .blm-view-panel .structured-output-text {
+      min-height: 380px;
+      white-space: pre-wrap;
+      line-height: 1.9;
+      font-size: 15px;
+    }
+
+    .blm-main {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .blm-stage {
+      border: 1px solid rgba(77,230,255,0.14);
+      border-radius: 24px;
+      background: rgba(6,14,25,0.52);
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .blm-stage-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .blm-canvas {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      overflow-y: visible;
+      padding: 2px 4px 12px;
+      scroll-behavior: smooth;
+      cursor: grab;
+    }
+
+    .blm-canvas.dragging { cursor: grabbing; }
+
+    .blm-card {
+      min-width: 360px;
+      width: max-content;
+      max-width: 620px;
+      resize: horizontal;
+      overflow: auto;
+      flex: 0 0 auto;
+      padding: 14px;
+    }
+
+    .blm-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      cursor: move;
+    }
+
+    .blm-card-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      min-width: 32px;
+    }
+
+    .blm-card-body {
+      font-size: var(--scale-font, 14px);
+      line-height: 1.75;
+    }
+
+    .blm-desc {
+      color: var(--muted);
+      font-size: calc(var(--scale-font, 14px) - 1px);
+      line-height: 1.7;
+      min-height: 62px;
+      margin-bottom: 10px;
+    }
+
+    .analysis-card {
+      margin-bottom: 10px;
+      min-height: 180px;
+      line-height: 1.75;
+    }
+
+    .analysis-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .blm-card.is-focus {
+      position: fixed;
+      inset: 32px;
+      width: auto !important;
+      max-width: none;
+      max-height: calc(100vh - 64px);
+      z-index: 200;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      background: rgba(8,16,28,0.98);
+      resize: both;
+    }
+
+    .blm-card.is-focus .analysis-card { min-height: 280px; }
+
+    .blm-summary-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .legend-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend-bar span {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .analysis-mode-box {
+      display: grid;
+      gap: 16px;
+    }
+
+    .mode-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .current-workbench {
+      display: grid;
+      gap: 16px;
+    }
+
+    .current-action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-start;
+      margin-top: 8px;
+    }
+
+    .view-btn { min-width: 168px; }
+
+    .ai-canvas {
+      border: 1px solid rgba(77,230,255,0.18);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(8,18,31,0.96), rgba(6,14,24,0.94));
+      min-height: 520px;
+      overflow: hidden;
+      box-shadow: 0 24px 56px rgba(0,0,0,0.32);
+    }
+
+    .ai-canvas-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .ai-canvas-title { font-size: 16px; font-weight: 700; }
+    .ai-canvas-sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+    .ai-canvas-body {
+      position: relative;
+      padding: 20px;
+      min-height: 440px;
+      overflow: auto;
+    }
+
+    .ai-stream-shell {
+      border: 1px solid rgba(77,230,255,0.12);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.035);
+      padding: 18px;
+    }
+
+    .ai-cursor {
+      display: inline-block;
+      width: 9px;
+      height: 18px;
+      margin-left: 4px;
+      background: rgba(77,230,255,0.95);
+      border-radius: 3px;
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .docx-render {
+      color: #f1f7ff;
+      line-height: 1.9;
+      font-size: 15px;
+    }
+
+    .docx-render h1, .docx-render h2, .docx-render h3 { margin-top: 0; }
+    .docx-render p { margin: 0 0 12px; }
+    .docx-render ul, .docx-render ol { margin: 0 0 14px 22px; }
+    .docx-render strong { color: #ffffff; }
+
+    .prompt-sheet {
+      border: 1px solid rgba(77,230,255,0.14);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      padding: 22px 24px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .prompt-sheet-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin: 0 0 10px;
+      color: #ffffff;
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif;
+    }
+
+    .prompt-sheet-desc {
+      color: #a7c7d9;
+      margin-bottom: 18px;
+      font-size: 13px;
+    }
+
+    .prompt-sheet-body {
+      white-space: pre-wrap;
+      line-height: 2;
+      font-size: 15px;
+      color: #eff7ff;
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif;
+    }
+
+    .chart-shell {
+      display: grid;
+      gap: 14px;
+    }
+
+    .chart-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .chart-board {
+      position: relative;
+      border: 1px dashed rgba(77,230,255,0.24);
+      border-radius: 20px;
+      background: radial-gradient(circle at top right, rgba(77,230,255,0.1), transparent 26%), rgba(255,255,255,0.03);
+      min-height: 520px;
+      overflow: hidden;
+      cursor: grab;
+      resize: both;
+    }
+
+    .chart-board.dragging { cursor: grabbing; }
+
+    .chart-surface {
+      transform-origin: top left;
+      min-width: 1100px;
+      min-height: 800px;
+      padding: 30px;
+      transition: transform 0.16s ease;
+    }
+
+    .chart-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+      box-shadow: 0 18px 44px rgba(0,0,0,0.28);
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .chart-placeholder {
+      min-height: 760px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      border: 1px dashed rgba(77,230,255,0.2);
+      background: rgba(255,255,255,0.03);
+      color: #d7e8f7;
+      padding: 32px;
+      text-align: center;
+      line-height: 1.9;
+      font-size: 15px;
+    }
+
+    .reflection-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .reflection-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.035);
+      padding: 16px;
+    }
+
+    .reflection-card h3 { margin: 0 0 12px; }
+    .reflection-answer { margin-top: 10px; color: #bfeeff; }
+    .docx-embed-shell {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(4, 12, 24, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    .docx-embed-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, rgba(77,230,255,0.08), rgba(95,137,255,0.04));
+    }
+    .docx-embed-frame {
+      width: 100%;
+      height: 980px;
+      border: 0;
+      background: #0b1320;
+    }
+    .exam-intro {
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .exam-card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.04);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
+    }
+    .exam-options {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .exam-option {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+    }
+    .exam-option:hover {
+      transform: translateY(-1px);
+      border-color: rgba(77,230,255,0.25);
+      background: rgba(77,230,255,0.06);
+    }
+    .exam-option input { margin-top: 3px; }
+    .exam-actions { margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .exam-feedback {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      line-height: 1.8;
+    }
+    .exam-feedback.correct {
+      border-color: rgba(47,226,181,0.32);
+      background: rgba(47,226,181,0.1);
+      color: #dffff5;
+    }
+    .exam-feedback.wrong {
+      border-color: rgba(255,199,95,0.28);
+      background: rgba(255,199,95,0.08);
+      color: #fff1cd;
+    }
+
+    .company-choice-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .company-choice-btn {
+      border: 1px solid rgba(77,230,255,0.24);
+      background: rgba(77,230,255,0.08);
+      color: white;
+      border-radius: 14px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .company-choice-btn.active {
+      border-color: rgba(47,226,181,0.38);
+      background: linear-gradient(135deg, rgba(47,226,181,0.24), rgba(77,230,255,0.16));
+      box-shadow: 0 0 28px rgba(47,226,181,0.14);
+    }
+    .company-viewer-shell {
+      border: 1px solid rgba(77,230,255,0.18);
+      border-radius: 24px;
+      background: rgba(8,18,31,0.95);
+      overflow: hidden;
+      box-shadow: 0 24px 56px rgba(0,0,0,0.3);
+    }
+    .company-viewer-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+    }
+    .company-viewer-tools {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .company-viewer-board {
+      height: 980px;
+      overflow: auto;
+      background: #0b1320;
+      padding: 14px;
+    }
+    .company-viewer-stage {
+      transform-origin: top left;
+      min-width: 100%;
+      min-height: 920px;
+    }
+    .company-viewer-frame {
+      width: 100%;
+      height: 920px;
+      border: 0;
+      border-radius: 16px;
+      background: white;
+    }
+
+    .footnote { margin-top: 8px; color: var(--muted); font-size: 12px; text-align: right; }
+
+    @media (max-width: 1200px) {
+      .module-layout, .grid-2, .grid-3, .grid-4, .blm-layout, .blm-summary-grid { grid-template-columns: 1fr; }
+      .blm-rail { position: static; }
+      .blm-card { min-width: 300px; max-width: 100%; }
+      .radio-grid { grid-template-columns: 1fr; }
+      .options { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+    }
+
+    @media (max-width: 760px) {
+      .container { width: min(100% - 20px, 1440px); }
+      .home-grid { grid-template-columns: 1fr; }
+      .page-title { font-size: 24px; }
+      .card-title { font-size: 28px; }
+      .control-item { grid-template-columns: 1fr; }
+      .result-row { grid-template-columns: 1fr; }
+      .blm-card { min-width: 100%; width: 100%; }
+      .chart-surface { min-width: 820px; }
+      .view-btn { min-width: auto; flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section id="homePage" class="page hidden">
+      <div class="hero glass">
+        <div class="tag">企业组织结构认知与设计平台 · HTML 程序</div>
+        <h1>组织结构认知及设计平台</h1>
+        <div class="sub">
+          首页采用两个大图标入口：模块1为大模型接入，支持 ChatGPT、DeepSeek、豆包三类模型配置；模块2为组织结构认知及设计，支持上传年报 PDF 或直接使用系统默认年报资料，由系统识别企业名称并执行当前组织结构提取、BLM分析、受控出题、未来组织结构生成与评估。
+        </div>
+        <div class="status-strip">
+          <div class="status-pill" id="globalModelStatus">当前模型：未连接</div>
+          <div class="status-pill" id="globalCompanyStatus">当前企业：未识别</div>
+          <div class="status-pill" id="globalSourceStatus">资料来源：未选择</div>
+          <div class="status-pill">AI模式：严格受控模式</div>
+        </div>
+      </div>
+
+      <div class="home-grid">
+        <div class="home-card" id="modelCard" style="--grad: linear-gradient(135deg, rgba(77,230,255,0.35), rgba(95,137,255,0.24), rgba(154,111,255,0.2));">
+          <div class="home-inner">
+            <div class="col" style="position: relative; z-index:1;">
+              <div class="row">
+                <span class="badge">模块1</span>
+                <span class="badge">真实模型接入</span>
+              </div>
+              <div>
+                <div class="card-title">大模型接入</div>
+                <div class="card-desc">用户自带 API Key，选择模型、填写密钥、执行连通性测试，并将连接状态带入后续分析流程。</div>
+              </div>
+              <div class="hidden-menu" id="modelMenu">
+                <div class="menu-line">• 支持 ChatGPT / DeepSeek / 豆包</div>
+                <div class="menu-line">• 输入用户自己的 API Key</div>
+                <div class="menu-line">• 连通性测试与连接状态提示</div>
+                <div class="menu-line">• 会话级保存，不写死平台密钥</div>
+              </div>
+            </div>
+            <div class="row" style="position: relative; z-index:1;">
+              <button class="ghost-btn" id="toggleModelMenu">展开菜单</button>
+              <button class="neon-btn" id="goModelPage">进入模块</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="home-card" id="orgCard" style="--grad: linear-gradient(135deg, rgba(47,226,181,0.32), rgba(77,230,255,0.22), rgba(95,137,255,0.18));">
+          <div class="home-inner">
+            <div class="col" style="position: relative; z-index:1;">
+              <div class="row">
+                <span class="badge">模块2</span>
+                <span class="badge">报告驱动分析</span>
+              </div>
+              <div>
+                <div class="card-title">组织结构认知及设计</div>
+                <div class="card-desc">可上传年报 PDF 或直接使用系统默认年报资料，系统按“企业识别 → 当前结构 → BLM分析 → 未来结构 → 判题解析”的流程执行。</div>
+              </div>
+              <div class="hidden-menu" id="orgMenu">
+                <div class="menu-line">• 上传年报 PDF 或使用系统默认年报 PDF</div>
+                <div class="menu-line">• 自动识别企业名称与年份</div>
+                <div class="menu-line">• 当前组织结构相关信息、推导摘要、结构图与反思一体化呈现</div>
+                <div class="menu-line">• BLM 受控分析、受控出题、未来结构图生成</div>
+              </div>
+            </div>
+            <div class="row" style="position: relative; z-index:1;">
+              <button class="ghost-btn" id="toggleOrgMenu">展开菜单</button>
+              <button class="neon-btn" id="goOrgPage">进入模块</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modelPage" class="page">
+      <div class="page-header glass">
+        <div>
+          <div class="row" style="justify-content:flex-start; gap: 12px; margin-bottom: 10px;">
+            <button class="ghost-btn back-home">返回首页</button>
+            <span class="badge">模块1</span>
+          </div>
+          <div class="page-title">大模型接入</div>
+          <div class="page-note">
+        </div>
+        <div class="notice" style="max-width: 560px;">
+          建议优先通过后端代理保存与转发请求，以避免浏览器端直接暴露密钥。当前 HTML 版保留了浏览器会话级保存与直连测试函数，适合原型验证与本地演示。
+        </div>
+      </div>
+
+      <div class="module-layout">
+        <aside class="side-nav glass">
+          <div class="nav-title">步骤导航</div>
+          <div class="nav-list">
+            <button class="nav-btn active" data-model-section="select">1. 模型选择</button>
+            <button class="nav-btn" data-model-section="key">2. API Key 配置</button>
+            <button class="nav-btn" data-model-section="test">3. 连通性测试</button>
+            <button class="nav-btn" data-model-section="state">4. 当前状态</button>
+          </div>
+        </aside>
+
+        <div class="panel-stack">
+          <div class="section glass model-section active" id="model-select">
+            <div class="section-head">
+              <div>
+                <div class="section-title">模型选择</div>
+                <div class="section-sub">默认采用单模型工作模式，同一时刻仅激活一个主模型。</div>
+              </div>
+            </div>
+            <div class="radio-grid" id="providerGrid">
+              <div class="radio-card active" data-provider="openai">
+                <input type="radio" checked name="provider" />
+                <div>
+                  <div class="radio-title">ChatGPT / OpenAI</div>
+                  <div class="radio-desc">默认接口地址为 OpenAI Chat Completions，可改为自定义代理地址。</div>
+                </div>
+              </div>
+              <div class="radio-card" data-provider="deepseek">
+                <input type="radio" name="provider" />
+                <div>
+                  <div class="radio-title">DeepSeek</div>
+                  <div class="radio-desc">默认采用 OpenAI 兼容 Chat Completions 接口。</div>
+                </div>
+              </div>
+              <div class="radio-card" data-provider="doubao">
+                <input type="radio" name="provider" />
+                <div>
+                  <div class="radio-title">豆包 / 火山方舟</div>
+                  <div class="radio-desc">默认采用火山方舟 Chat Completions 数据面接口。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section glass model-section hidden" id="model-key">
+            <div class="section-head">
+              <div>
+                <div class="section-title">API Key 配置</div>
+                <div class="section-sub">当前页面仅做会话级保存，可清空，不默认持久写入服务器。</div>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="field-group">
+                <div class="field-label">接口地址</div>
+                <input type="text" id="baseUrlInput" placeholder="例如 https://api.openai.com/v1/chat/completions" />
+              </div>
+              <div class="field-group">
+                <div class="field-label">模型名称</div>
+                <input type="text" id="modelNameInput" placeholder="例如 gpt-4o-mini / deepseek-chat / doubao-seed-2-0-lite-260215" />
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top: 14px;">
+              <div class="field-group">
+                <div class="field-label">API Key</div>
+                <input type="password" id="apiKeyInput" placeholder="请输入用户自己的 API Key" />
+              </div>
+              <div class="field-group">
+                <div class="field-label">自定义请求头（可选，JSON）</div>
+                <input type="text" id="extraHeadersInput" placeholder='例如 {"x-request-id":"demo"}' />
+              </div>
+            </div>
+            <div class="row" style="justify-content:flex-start; margin-top: 14px; flex-wrap:wrap;">
+              <button class="small-btn" id="fillProviderDefault">填充默认配置</button>
+              <button class="small-btn" id="toggleKeyBtn">显示 / 隐藏 Key</button>
+              <button class="neon-btn" id="saveConfigBtn">保存当前配置</button>
+              <button class="danger-btn" id="clearConfigBtn">清除配置</button>
+            </div>
+          </div>
+
+          <div class="section glass model-section hidden" id="model-test">
+            <div class="section-head">
+              <div>
+                <div class="section-title">连通性测试</div>
+                <div class="section-sub">发送一个极简测试请求，验证地址、模型、密钥与网络是否可用。</div>
+              </div>
+            </div>
+            <div class="notice">当前 HTML 版本已包含真实 fetch 调用函数。若浏览器直接跨域失败，建议改为后端代理转发后再调用。</div>
+            <div class="row" style="justify-content:flex-start; margin-top: 14px; flex-wrap:wrap;">
+              <button class="neon-btn" id="testConnectionBtn">执行连通性测试</button>
+              <button class="ghost-btn" id="simulateSuccessBtn">使用演示结果</button>
+            </div>
+            <div id="testResultBox" class="warning" style="margin-top: 14px;">尚未进行连通性测试。</div>
+          </div>
+
+          <div class="section glass model-section hidden" id="model-state">
+            <div class="section-head">
+              <div>
+                <div class="section-title">当前连接状态</div>
+                <div class="section-sub">该状态将同步到模块2顶部，用于控制后续 AI 分析流程。</div>
+              </div>
+            </div>
+            <div class="grid-4">
+              <div class="kv-card"><div class="kv-key">当前模型</div><div class="kv-value" id="stateProvider">未设置</div></div>
+              <div class="kv-card"><div class="kv-key">接口地址</div><div class="kv-value" id="stateBaseUrl">未设置</div></div>
+              <div class="kv-card"><div class="kv-key">模型名称</div><div class="kv-value" id="stateModelName">未设置</div></div>
+              <div class="kv-card"><div class="kv-key">连接状态</div><div class="kv-value" id="stateConn">未连接</div></div>
+            </div>
+            <div class="footnote">建议后续改造为服务端安全代理：浏览器输入 Key → 后端暂存/加密 → 后端代调用。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="orgPage" class="page active">
+      <div class="page-header glass" style="padding: 12px 20px; margin-bottom: 12px;">
+        <div class="page-title" style="margin:0;">组织结构认知及设计</div>
+        <div id="orgTopStatus" style="font-size:15px; color: var(--muted); font-weight:600;">程序开发/指导教师：鄢清华　重庆工商大学</div>
+      </div>
+
+      <div class="module-layout">
+        <div class="left-rail">
+          <div class="login-panel glass" id="loginPanel">
+            <div class="login-panel-head">
+              <div>
+                <div class="login-panel-title">登录区</div>
+                <div class="login-panel-sub">输入邀请码和姓名，验证成功后解锁程序。</div>
+              </div>
+              <span class="badge">访问控制</span>
+            </div>
+            <div id="loginFormWrap">
+              <div class="grid-2">
+                <div class="field-group">
+                  <div class="field-label">邀请码</div>
+                  <input type="text" id="inviteCodeInput" placeholder="例如 2026318" autocomplete="off" />
+                </div>
+                <div class="field-group">
+                  <div class="field-label">姓名</div>
+                  <input type="text" id="inviteNameInput" placeholder="请输入姓名" autocomplete="off" />
+                </div>
+              </div>
+              <div class="row" style="justify-content:flex-start; margin-top: 10px; flex-wrap:wrap;">
+                <button class="neon-btn" id="loginConfirmBtn" type="button">确认登录</button>
+              </div>
+              <div id="loginStatusBox" class="notice login-status-box">请先完成登录验证，未登录状态下程序导航与功能按钮将保持锁定。</div>
+            </div>
+            <div id="loginWelcomeBox" class="login-welcome hidden">
+              <div>
+                <div style="font-size:12px; opacity:0.9;">登录成功</div>
+                <strong id="loginWelcomeText">欢迎：---</strong>
+              </div>
+              <button class="ghost-btn" id="logoutBtn" type="button">退出登录</button>
+            </div>
+            <div id="accessLockedTip" class="warning access-locked-tip">当前未登录，程序已锁定。登录成功后可进入模块、切换流程导航并使用各项功能。</div>
+          </div>
+
+          <aside class="side-nav glass">
+            <div class="nav-title">流程导航</div>
+            <div class="nav-list">
+              <button class="nav-btn active" data-org-section="upload">1. 选择组织</button>
+              <button class="nav-btn" data-org-section="current">2. AI辅助提取组织结构相关信息</button>
+              <button class="nav-btn" data-org-section="blm">3. BLM分析-组织变革的依据</button>
+              <button class="nav-btn" data-org-section="future">4. 未来结构设计与评估</button>
+            </div>
+          </aside>
+        </div>
+
+        <div class="panel-stack">
+          <div class="section glass org-section active" id="org-upload">
+            <div class="section-head">
+              <div>
+                <div class="section-title">选择组织</div>
+                <div class="section-sub">选择公司后，在共享模块框中直接查看对应文件或网页内容。</div>
+              </div>
+            </div>
+            <div class="analysis-mode-box">
+              <div class="company-choice-row">
+                <button class="company-choice-btn active" data-company="roborock">石头科技</button>
+                <button class="company-choice-btn" data-company="xiaomi">小米科技</button>
+                <button class="company-choice-btn" data-company="cqu">重庆大学（未启动）</button>
+              </div>
+              <div class="company-viewer-shell">
+                <div class="company-viewer-toolbar">
+                  <div class="company-viewer-tools">
+                    <button class="small-btn" id="companyZoomOutBtn">缩小</button>
+                    <button class="small-btn" id="companyZoomInBtn">放大</button>
+                  </div>
+                  <div>
+                    <div class="section-title" style="font-size:18px;" id="companyViewerTitle">石头科技 2024 年年报</div>
+                    <div class="section-sub" id="companyViewerSub">共享模块框：点击不同企业按钮，在此处查看对应年报或机构设置网页。</div>
+                  </div>
+                </div>
+                <div class="company-viewer-board" id="companyViewerBoard">
+                  <div class="company-viewer-stage" id="companyViewerStage"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section glass org-section hidden" id="org-current">
+            <div class="section-head">
+              <div>
+                <div class="section-title">AI辅助提取组织结构相关信息</div>
+                <div class="section-sub">通过 AI 提示词、年报信息提取、结构摘要、结构图与反思题，围绕组织结构相关信息进行统一展示与教学演示。</div>
+              </div>
+            </div>
+            <div class="current-workbench">
+              <div class="current-action-row">
+                <button class="view-btn active" id="btnCurrentPrompt" data-current-view="prompt">AI提示词</button>
+                <button class="view-btn" id="btnCurrentInfo" data-current-view="info">AI辅助提取组织结构相关信息</button>
+                <button class="view-btn" id="btnCurrentSummary" data-current-view="summary">组织结构推导摘要</button>
+                <button class="view-btn" id="btnCurrentChart" data-current-view="chart">生成组织结构图</button>
+                <button class="view-btn" id="btnCurrentReflect" data-current-view="reflect">组织结构反思</button>
+              </div>
+              <div class="ai-canvas" id="currentCanvas">
+                <div class="ai-canvas-toolbar">
+                  <div>
+                    <div class="ai-canvas-title" id="currentCanvasTitle">AI提示词</div>
+                    <div class="ai-canvas-sub" id="currentCanvasSub">该提示词与后续四个功能按钮共用同一个模块框展示区域。</div>
+                  </div>
+                  <div class="toolbar-right-group"><div class="mode-row" id="currentCanvasTools"></div><button class="confirm-btn" id="currentConfirmBtn" type="button">我明白了</button></div>
+                </div>
+                <div class="ai-canvas-body" id="currentCanvasBody">
+                  <div class="ai-stream-shell">
+                    <div class="docx-render" id="currentStreamContainer">等待展示 AI 辅助提取组织结构相关信息内容。</div>
+                  </div>
+                </div>
+              </div>
+              <div class="notice" id="currentModeNotice">当前仅展示一个统一内容框。点击上方五个按钮，将在同一模块框内切换为对应内容。</div>
+            </div>
+          </div>
+
+          <div class="section glass org-section hidden" id="org-blm">
+            <div class="section-head">
+              <div>
+                <div class="section-title">BLM分析-组织变革的依据</div>
+                <div class="section-sub">围绕 BLM 模型学习、提示词与 AI 辅助分析，支撑组织变革依据的课堂演示与结构化分析。</div>
+              </div>
+              <div class="toolbar-right-group">
+                <div class="row" style="justify-content:flex-start; flex-wrap:wrap; gap:10px;">
+                  <button class="view-btn active" id="btnBlmLearn" data-blm-view="learn">BLM模型学习</button>
+                  <button class="view-btn" id="btnBlmPrompt" data-blm-view="prompt">AI提示词-提取BLM信息</button>
+                  <button class="view-btn" id="extractBlmBtn" data-blm-view="analysis">AI辅助BLM分析</button>
+                  <button class="view-btn" id="btnBlmSummary" data-blm-view="summary">BLM 分析摘要</button>
+                  <button class="view-btn" id="btnBlmReflect" data-blm-view="reflect">BLM分析反思</button>
+                </div>
+                <button class="confirm-btn" id="blmConfirmBtn" type="button">我明白了</button>
+              </div>
+            </div>
+            <div class="analysis-mode-box">
+              <div class="blm-view-panel active" id="blmLearnPanel">
+                <div class="section-title" style="font-size:18px; margin-bottom:8px;">BLM模型学习</div>
+                <div class="structured-output-text" id="blmLearnContent"></div>
+              </div>
+              <div class="blm-view-panel hidden" id="blmPromptPanel">
+                <div class="section-title" style="font-size:18px; margin-bottom:8px;">AI提示词-提取BLM信息</div>
+                <div class="structured-output-text" id="blmPromptContent"></div>
+              </div>
+              <div class="blm-view-panel hidden" id="blmAnalysisPanel">
+            <div class="blm-layout">
+              <div class="blm-rail">
+                <div class="nav-title" style="margin-bottom:0;">BLM 模块导航</div>
+                <button class="blm-rail-btn active" data-blm-target="blm-card-strategy">战略意图与增长主题<span>面向未来 2-3 年的增长引擎、竞争主题与资源投向。</span></button>
+                <button class="blm-rail-btn" data-blm-target="blm-card-business">客户与业务设计<span>客户、渠道、产品线、区域经营与业务单元划分。</span></button>
+                <button class="blm-rail-btn" data-blm-target="blm-card-capability">关键能力建设<span>研发、供应链、数字化、品牌、国际化协同等能力。</span></button>
+                <button class="blm-rail-btn" data-blm-target="blm-card-org">组织与治理支撑<span>组织形态、共享平台、决策机制、人才与考核支撑。</span></button>
+                <div class="blm-rail-note">操作提示：拖动右侧画布可横向浏览；每个模块卡片支持拉宽、字体放大缩小与双击全屏。</div>
+              </div>
+              <div class="blm-main">
+                <div class="blm-stage">
+                  <div class="blm-stage-head">
+                    <div>
+                      <div class="section-title" style="font-size:18px;">Business Leadership Model 结构化分析</div>
+                      <div class="section-sub">模块宽度自适应放大显示，全称展示，不再缩写裁切。</div>
+                    </div>
+                    <div class="legend-bar">
+                      <span>拖动画布浏览</span>
+                      <span>卡片右上角 +/- 调整字号</span>
+                      <span>双击标题栏全屏</span>
+                    </div>
+                  </div>
+                  <div class="blm-canvas" id="blmGrid">
+                    <div class="blm-card" id="blm-card-strategy" data-scale="1">
+                      <div class="blm-card-head">
+                        <div>
+                          <div class="badge">1</div>
+                          <div class="section-title" style="font-size:18px; margin-top:10px;">战略意图与增长主题</div>
+                        </div>
+                        <div class="blm-card-controls">
+                          <button class="mini-btn blm-zoom-out">－</button>
+                          <button class="mini-btn blm-zoom-in">＋</button>
+                          <button class="mini-btn blm-focus-toggle">全屏</button>
+                        </div>
+                      </div>
+                      <div class="blm-card-body">
+                        <div class="blm-desc">从年报战略章节、董事长致辞、管理层讨论中提取未来增长主题、竞争焦点、全球化目标与产品升级方向。</div>
+                        <div class="analysis-card" id="blmStrategy">尚未提取</div>
+                      </div>
+                    </div>
+                    <div class="blm-card" id="blm-card-business" data-scale="1">
+                      <div class="blm-card-head">
+                        <div>
+                          <div class="badge">2</div>
+                          <div class="section-title" style="font-size:18px; margin-top:10px;">客户与业务设计</div>
+                        </div>
+                        <div class="blm-card-controls">
+                          <button class="mini-btn blm-zoom-out">－</button>
+                          <button class="mini-btn blm-zoom-in">＋</button>
+                          <button class="mini-btn blm-focus-toggle">全屏</button>
+                        </div>
+                      </div>
+                      <div class="blm-card-body">
+                        <div class="blm-desc">识别是否存在多个产品线、不同区域市场、渠道体系及业务单元的划分逻辑。</div>
+                        <div class="analysis-card" id="blmBusiness">尚未提取</div>
+                      </div>
+                    </div>
+                    <div class="blm-card" id="blm-card-capability" data-scale="1">
+                      <div class="blm-card-head">
+                        <div>
+                          <div class="badge">3</div>
+                          <div class="section-title" style="font-size:18px; margin-top:10px;">关键能力建设</div>
+                        </div>
+                        <div class="blm-card-controls">
+                          <button class="mini-btn blm-zoom-out">－</button>
+                          <button class="mini-btn blm-zoom-in">＋</button>
+                          <button class="mini-btn blm-focus-toggle">全屏</button>
+                        </div>
+                      </div>
+                      <div class="blm-card-body">
+                        <div class="blm-desc">聚焦研发、供应链、数字化、渠道运营、品牌建设、跨区域协同等关键能力的建设要求。</div>
+                        <div class="analysis-card" id="blmCapability">尚未提取</div>
+                      </div>
+                    </div>
+                    <div class="blm-card" id="blm-card-org" data-scale="1">
+                      <div class="blm-card-head">
+                        <div>
+                          <div class="badge">4</div>
+                          <div class="section-title" style="font-size:18px; margin-top:10px;">组织与治理支撑</div>
+                        </div>
+                        <div class="blm-card-controls">
+                          <button class="mini-btn blm-zoom-out">－</button>
+                          <button class="mini-btn blm-zoom-in">＋</button>
+                          <button class="mini-btn blm-focus-toggle">全屏</button>
+                        </div>
+                      </div>
+                      <div class="blm-card-body">
+                        <div class="blm-desc">推导总部平台、事业部、区域经营单元、共享中心、经营例会与人才体系等组织支撑要素。</div>
+                        <div class="analysis-card" id="blmOrg">尚未提取</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+              </div>
+              <div class="blm-view-panel hidden" id="blmSummaryPanel">
+                <div class="resource-box">
+                  <div class="field-label">BLM 分析摘要</div>
+                  <textarea id="blmSummaryText" placeholder="此处显示基于材料生成的 BLM 结构化摘要，用于后续未来结构设计。" style="min-height:340px;"></textarea>
+                </div>
+              </div>
+              <div class="blm-view-panel hidden" id="blmReflectPanel">
+                <div class="resource-box">
+                  <div class="section-title" style="font-size:18px; margin-bottom:8px;">BLM分析反思</div>
+                  <div class="section-sub" style="margin-bottom:12px;"></div>
+                  <div id="blmReflectContent"></div>
+                </div>
+              </div>
+            </div>
+
+          <div class="section glass org-section hidden" id="org-future">
+            <div class="section-head" style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+              <div class="section-title">未来组织结构设计与评估</div>
+              <div class="mode-row" style="margin-bottom:0; flex-wrap:wrap; justify-content:flex-end;">
+                <button class="view-btn active" id="btnFuturePrompt" data-future-view="prompt">AI辅助组织结构再设计提示词</button>
+                <button class="view-btn" id="btnFuturePoints" data-future-view="points">未来组织结构图要点</button>
+                <button class="view-btn" id="btnFutureChart" data-future-view="chart">生成新的组织结构图</button>
+                <button class="view-btn" id="btnFutureReflect" data-future-view="reflect">反思新的组织结构</button>
+              </div>
+            </div>
+            <div class="window draggable" style="margin-top:14px;">
+              <div class="window-bar"><div><div id="futureCanvasTitle">AI辅助组织结构再设计提示词</div><div id="futureCanvasSub" style="margin-top:4px; color: var(--muted);">三个按钮共用下方模块框，当前仅完成布局。</div></div><button class="confirm-btn" id="futureConfirmBtn" type="button">我明白了</button></div>
+              <div class="window-content" id="futureCanvasBody">
+                <div class="resource-box">
+                  <div class="field-label">AI辅助组织结构再设计提示词</div>
+                  <div class="section-sub">当前为共享模块框占位区。后续你提供正式内容后，将直接填入这里。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const DEFAULT_DOCX_INFO_URL = 'https://glmn-1311686407.cos.ap-chengdu.myqcloud.com/%E7%9F%B3%E5%A4%B4%E7%A7%91%E6%8A%80-%E5%B9%B4%E6%8A%A5%E7%BB%84%E7%BB%87%E7%BB%93%E6%9E%84%E3%80%81%E5%B2%97%E4%BD%8D%E4%BF%A1%E6%81%AF%E6%8F%90%E5%8F%96.docx';
+    const DEFAULT_DOCX_SUMMARY_URL = 'https://glmn-1311686407.cos.ap-chengdu.myqcloud.com/%E7%9F%B3%E5%A4%B4%E7%A7%91%E6%8A%80%E7%BB%84%E7%BB%87%E7%BB%93%E6%9E%84%E6%8E%A8%E5%AF%BC%E6%91%98%E8%A6%81.docx';
+    const DEFAULT_CHART_IMAGE_URL = 'https://glmn-1311686407.cos.ap-chengdu.myqcloud.com/%E7%9F%B3%E5%A4%B4%E7%A7%91%E6%8A%80-%E4%B8%8D%E5%90%AB%E8%91%A3%E4%BA%8B%E4%BC%9A.png';
+    const XIAOMI_CHART_IMAGE_URL = 'https://glmn-1311686407.cos.ap-chengdu.myqcloud.com/%E7%94%9F%E6%88%90%E5%B0%8F%E7%B1%B3%E9%9B%86%E5%9B%A2%E5%85%A8%E7%90%83%E7%BB%84%E7%BB%87%E6%9E%B6%E6%9E%84%E5%9B%BE.png';
+    const COMPANY_SOURCES = {
+      roborock: {
+        name: '石头科技',
+        title: '石头科技 2024 年年报',
+        type: 'docx',
+        url: 'https://glmn-1311686407.cos.ap-chengdu.myqcloud.com/%E7%9F%B3%E5%A4%B4%E7%A7%91%E6%8A%802024%E5%B9%B4%E5%B9%B4%E6%8A%A5.docx',
+        subtitle: '已改为通过 Office 在线预览嵌入，避免浏览器直接下载 Word 文档。'
+      },
+      xiaomi: {
+        name: '小米科技',
+        title: '小米科技 2024 年年报',
+        type: 'docx',
+        url: 'https://glmn-1311686407.cos.ap-chengdu.myqcloud.com/%E5%B0%8F%E7%B1%B3%E7%A7%91%E6%8A%802024%E5%B9%B4%E5%B9%B4%E6%8A%A5%EF%BC%88%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%EF%BC%89.docx',
+        subtitle: '已改为通过 Office 在线预览嵌入，避免浏览器直接下载 Word 文档。'
+      },
+      cqu: {
+        name: '重庆大学（未启动）',
+        title: '重庆大学机构设置网页',
+        type: 'web_blocked',
+        url: 'https://www.cqu.edu.cn/jgsz.htm',
+        mirrorUrl: 'https://r.jina.ai/http://https://www.cqu.edu.cn/jgsz.htm',
+        subtitle: '原网页禁止被 iframe 引用，现改为“镜像文本预览 + 原网页新窗口打开”双通道展示。'
+      }
+    };
+
+    const INVITE_FILE_URL = 'https://raw.githubusercontent.com/steven2025/zuzhi/84afa7db5bc26d677049373133bd8720147e55a7/%E9%82%80%E8%AF%B7%E7%A0%81.txt';
+
+    const defaultConfigs = {
+      openai: { providerLabel: 'ChatGPT / OpenAI', baseUrl: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini' },
+      deepseek: { providerLabel: 'DeepSeek', baseUrl: 'https://api.deepseek.com/chat/completions', model: 'deepseek-chat' },
+      doubao: { providerLabel: '豆包 / 火山方舟', baseUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions', model: 'doubao-seed-2-0-lite-250415' }
+    };
+
+    const systemDefaultCompany = {
+      name: '石头科技',
+      year: '2024',
+      industry: '智能清洁设备 / 科技硬件',
+      business: '扫地机器人、洗地机、智能清洁产品'
+    };
+
+    const uploadAiTemplateInstruction = `【程序给AI的强约束】\n1. 如果当前为用户上传年报PDF模式，企业识别、当前组织结构相关信息、组织结构推导摘要、组织结构图生成都必须优先依据用户上传年报中的真实内容，不得使用系统默认企业信息替代。\n2. “当前组织结构相关信息”的输出格式必须尽量仿照系统默认模板《石头科技-年报组织结构、岗位信息提取.docx》的层级、标题风格、段落分组、强调方式与条目组织。\n3. “组织结构推导摘要”的输出格式必须尽量仿照系统默认模板《石头科技组织结构推导摘要.docx》的版式层级、粗体小标题、分段逻辑和总结方式。\n4. “生成组织结构图”必须尽量仿照系统默认图片《石头科技-不含董事会.png》的结构呈现方式，从上到下完整展示组织层级、主要岗位与归属关系。\n5. 仅可依据年报中可识别的高管简介、产品线、区域市场、员工分类人数、研发与供应链描述进行提取和推导，禁止脱离年报自由发挥。`;
+
+    const CURRENT_ORG_PROMPT_TEXT = `请基于以下提供的石头科技 2024 年年度报告文档，按要求提取以下关键信息，提取结果需准确对应文档内容，无遗漏、无额外添加：
+公司核心管理团队信息，包括姓名、职务、任期、主要工作经历；
+公司组织架构相关信息，包括董事会下设专门委员会（名称、成员）、核心业务部门 / 事业部及对应的负责人；
+公司关键岗位设置及人员情况，包括研发、销售、生产、财务、行政、采购等核心职能岗位的人员数量、占比；
+核心技术人员信息，包括姓名、职务、持股变动、薪酬情况及主要工作经历；
+子公司信息，包括子公司名称、业务性质、主要产品 / 服务、持股比例、注册资本、核心负责人（如有）。`;
+
+    const XIAOMI_CURRENT_PROMPT_TEXT = `请基于以下提供的小米科技 2024 年年度报告文档，按要求提取以下关键信息，提取结果需准确对应文档内容，无遗漏、无额外添加：
+公司核心管理团队信息，包括姓名、职务、任期、主要工作经历；
+公司组织架构相关信息，包括董事会下设专门委员会（名称、成员）、核心业务部门 / 事业部及对应的负责人；
+公司关键岗位设置及人员情况，包括研发、销售、生产、财务、行政、采购等核心职能岗位的人员数量、占比；
+核心技术人员信息，包括姓名、职务、持股变动、薪酬情况及主要工作经历；
+子公司信息，包括子公司名称、业务性质、主要产品 / 服务、持股比例、注册资本、核心负责人（如有）；
+全球区域组织信息，包括中国、欧洲、印度、东南亚、拉美、中东及非洲、北美等区域单元。`;
+
+    const ROBOROCK_CURRENT_INFO_TEXT = `基于石头科技 2024 年年报，可清晰推导其“治理层 - 高管层 - 业务板块 - 子公司” 的核心组织结构框架 ，整体呈现 “职能管控 + 产品事业部 + 全球化区域布局” 的混合架构特征，具体拆解如下：
+
+一、核心治理与高管架构（明确披露）
+1. 治理层结构
+股东大会：最高决策机构，审议利润分配、章程修订等重大事项（2024 年召开 3 次股东大会，审议通过分红、股权激励等议案）。
+董事会：下设 4 个专门委员会，分工明确：
+-战略与 ESG 委员会（召集人：董事长昌敬）：负责公司战略制定、ESG 相关规划；
+-审计委员会（召集人：独立董事张亚男）：监督财务审计、内控执行；
+-薪酬与考核委员会（召集人：独立董事张亚男）：制定董事、高管薪酬及股权激励方案；
+-提名委员会（召集人：独立董事张亚男）：负责董事、高管提名与换届。
+-监事会：由职工代表监事（监事会主席谢濠键）和非职工代表监事（李琼、江海峰）组成，监督董事会、高管层履职。
+2. 高管层核心成员（明确分工）
+表格
+姓名	职务	核心职责
+昌敬	董事长、总经理	全面负责公司战略与经营管理，主导研发与市场布局
+全刚	副总经理	分管核心业务板块（推测聚焦产品研发或生产）
+钱启杰	副总经理	分管制造、供应链相关业务（背景为富士康、华为制造领域经验）
+孙佳	董事、董事会秘书	负责公司治理、信息披露、投资者关系
+王璇	财务负责人	负责财务核算、资金管理、利润分配等
+
+二、核心业务与职能部门架构（披露 + 合理推导）
+1. 产品事业部（按产品品类划分，明确披露）
+智能扫地机事业部：核心业务板块，2024 年营收 108.48 亿元（占总营收 90.9%），研发聚焦 SLAM 算法、避障技术等，代表产品 P20 Pro、G20S Ultra；
+洗地机事业部：新兴增长板块，营收包含在 “其他智能电器产品”（10.70 亿元），研发双滚刷系统、AI 双向助力等技术，代表产品 A30 系列；
+洗烘一体机事业部（洗衣机 BU）：重点拓展板块，负责人为谢濠键（监事会主席兼 BU 负责人），核心技术为分子筛低温烘干，代表产品 Z1、Q1 系列；
+预研类项目组：聚焦多轴仿生机械手、RRMind GPT 智慧交互大模型等前沿技术，为未来产品迭代储备能力。
+2. 核心职能部门（按年报披露业务逻辑推导）
+研发中心：1043 名研发人员（占员工总数 40.74%），按技术方向分算法研发（SLAM、AI 导航）、硬件研发（传感器、机械结构）、软件研发（IOT 平台、APP）等团队，2024 年研发投入 9.71 亿元；
+生产制造部：采用 “自建工厂 + 委外加工” 模式，自有工厂为惠州石头智造科技有限公司（100% 控股），负责核心产品生产；
+销售与市场部：分境内、境外两大渠道，境内以电商（京东、天猫）+ 线下体验店（近 200 家）为主，境外以亚马逊、Bestbuy 等平台 + 本地分公司为辅；
+采购部：负责人为江海峰（监事兼采购总监），负责原材料采购、供应商管理（2024 年前五大供应商采购额 19.65 亿元）；
+行政与人力资源部：负责人为李琼（监事兼行政负责人），负责组织建设、员工培训、薪酬激励（2024 年推出多期限制性股票激励计划）；
+证券与投资部：负责信息披露、投资者关系、对外投资（参与多只私募股权投资基金）。
+三、全球化区域布局（明确披露）
+境内总部：北京（注册 + 办公地址），统筹研发、战略、财务等核心职能；
+境外区域公司：在美国、英国、日本、荷兰、波兰、德国、韩国、加拿大等地设立当地分公司 / 子公司，负责区域市场拓展、渠道管理、售后服务；
+境外资产与业务占比：境外资产 21.83 亿元（占总资产 12.49%），2024 年境外营收 63.88 亿元（占总营收 53.70%），为第一大收入来源。
+四、子公司与控股架构（明确披露）
+核心子公司均为 100% 控股，分工覆盖研发、生产、销售全链条：
+表格
+子公司名称	业务性质	核心职能
+北京石头创新科技有限公司	研发	软件开发、核心技术研发
+深圳洛克创新科技有限公司	研发	智能清洁产品研发
+惠州石头智造科技有限公司	生产	智能清洁产品生产制造（2024 年营收 56.84 亿元）
+深圳洛克时代科技有限公司	销售	境内外产品销售（2024 年营收 57.33 亿元）
+北京石头启迪科技有限公司	销售	境内产品销售、渠道管理
+Roborock Technology Co.（境外）销售	海外区域产品销售与品牌运营
+
+五、架构核心特征总结
+1.以产品为核心：按扫地机、洗地机、洗烘一体机划分事业部，研发与市场资源聚焦品类突破；
+2.强职能管控：研发、财务、人力资源等职能部门由总部统一管理，保障全公司标准化运营；
+3.全球化布局：境外设立本地化机构，适配不同区域市场的渠道与服务需求；
+4.研发驱动型：研发人员占比超 40%，设专门预研团队，架构设计优先支撑技术创新。
+
+六、年报未明确披露的细节（需注意）
+1.部门级以下的汇报关系（如研发中心下具体团队划分、区域公司内部架构）；
+2.矩阵式管理的具体运作逻辑（如区域销售与产品事业部的协同机制）；
+3.中台部门（如数据中心、共享服务中心）的明确设置（推测已隐含在研发中心或行政部门中，但未单独披露）。`;
+
+    const ROBOROCK_SUMMARY_TEXT = `石头科技 组织结构推导摘要
+高管分工
+产品与研发平台负责人：硬件研发、软件算法、产品定义、技术路线规划
+供应链与制造负责人：采购、计划、质量、生产协同、交付保障
+全球市场与销售负责人：国内零售、电商渠道、海外区域市场、品牌传播
+财务与组织支持负责人：财务管理、人力资源、法务内控、数字化支撑
+
+产品线 / 区域
+产品线：扫地机器人｜核心收入与技术旗舰产品
+产品线：洗地机 / 清洁新品类｜多品类延展形成第二增长曲线
+产品线：智能清洁生态配件与服务｜围绕主机形成配套经营
+区域：中国市场｜保留国内营销与电商运营单元
+区域：欧洲市场｜需要区域负责人或区域经营团队
+区域：北美市场｜需要本地化营销、渠道与售后协同
+
+员工结构 / 组织判断
+研发人员：860 人｜研发人数占比较高，说明产品与技术平台是组织核心
+销售与市场人员：420 人｜国内外市场扩张需要较强销售与品牌组织
+运营/供应链/质量人员：310 人｜交付与质量保障要求独立运营平台
+职能支持人员：150 人｜适合采用财务、人力、法务共享支持模式`;
+
+    const XIAOMI_CURRENT_INFO_TEXT = `一、董事会及核心管理人员
+姓名 职务 任期/任职情况 主要工作经历（报告披露）
+雷军 董事长、执行董事、CEO 按公司章程及上市规则董事任期轮值退任机制（至少每三年轮值退任一次） 小米集团创始人，负责集团整体战略及管理
+林斌 副董事长、执行董事 同董事会任期制度 小米联合创始人，长期负责集团战略及管理
+卢伟冰 执行董事、集团合伙人、总裁 同董事会任期制度 负责集团中国区业务及品牌战略
+蔡金青 独立非执行董事 2024年新任命 新增女性独立董事，提升董事会多元化
+
+董事会运作情况：
+2024年共召开 4次董事会会议
+董事出席率 100%
+每名董事至少每三年轮值退任一次
+
+二、公司组织架构信息
+1. 董事会下设专门委员会
+审核委员会（Audit Committee） 负责财务报告、内部控制与审计监督
+企业管治委员会（Corporate Governance Committee） 负责公司治理政策、治理实践监督
+提名委员会（Nomination Committee） 负责董事及高管提名与董事会结构评估
+薪酬委员会（Remuneration Committee） 负责董事及高级管理层薪酬政策
+
+此外治理结构还包括：
+ESG管理体系
+可持续发展委员会
+ESG工作组
+治理层级：
+董事会 → 企业管治委员会 → 可持续发展委员会 → 各相关部门 → ESG工作组
+
+2. 核心业务板块 / 事业部
+手机 × AIoT业务：智能手机、IoT与生活消费产品
+IoT与生活消费产品：智能家电、可穿戴设备等
+互联网服务：内容、广告、互联网服务
+智能电动汽车业务：小米汽车、智能驾驶技术
+报告说明公司整体业务结构为 “人车家全生态” 战略体系。
+
+三、关键岗位设置及人员情况
+2024年员工总数：46,426人
+研发人员：21,190人 占员工比例 45.6%
+销售及营销人员：15,540人 占员工比例 33.5%
+生产制造人员：1,853人 占员工比例 4.0%
+行政服务管理及其他：5,105人 占员工比例 11.0%
+
+管理层结构：
+高级管理层 男性 335 女性 70
+中层管理层 男性 14,786 女性 5,069
+基层员工 男性 15,545 女性 7,883
+
+四、核心技术人员信息
+年度报告未以“核心技术人员名单”单独披露个人详细薪酬与持股情况，但披露以下技术团队与研发信息：
+研发人员：21,190人
+持续投入AI、IoT、5G等核心技术研发
+
+技术团队成果：
+小米AI实验室声学语言团队：获 IEEE SLT2024 语音挑战赛冠军
+小米澎湃OS研发团队：推动“人车家全生态”操作系统
+
+五、子公司信息
+小米通讯技术有限公司：智能手机研发制造；主要产品 / 服务为小米手机、MIUI系统；持股比例为全资或控股；注册资本未披露；核心负责人未披露。
+小米汽车有限公司：智能电动汽车；主要产品 / 服务为 Xiaomi SU7；持股比例为控股；注册资本未披露；核心负责人未披露。
+小米之家商业有限公司：零售渠道；主要产品 / 服务为小米之家线下零售；持股比例为控股；注册资本未披露；核心负责人未披露。
+小米科技有限责任公司：互联网与AIoT平台；主要产品 / 服务为 IoT 平台及互联网服务；持股比例为控股；注册资本未披露；核心负责人未披露。
+其中：小米汽车首款产品 Xiaomi SU7 于2024年上市并交付，2024年交付 136,854台。
+
+六、全球区域组织
+中国：承担集团中国区业务、品牌战略与国内渠道运营。
+欧洲：承担欧洲区域市场拓展、渠道管理与本地化经营。
+印度：承担印度区域业务运营与本地市场协同。
+东南亚：承担东南亚区域销售、渠道与市场拓展。
+拉美：承担拉美区域市场开拓与本地合作。
+中东及非洲：承担中东及非洲区域业务拓展、渠道与服务支持。
+北美：承担北美区域市场布局与重点业务协同。
+
+七、总结（报告披露的公司组织与人员结构）
+治理层：董事会 → 四大专门委员会（审核委员会、企业管治委员会、提名委员会、薪酬委员会）
+管理层：CEO + 高级管理团队
+业务层：手机 × AIoT、IoT与生活消费产品、互联网服务、智能电动汽车
+员工结构：总员工 46,426；研发 21,190；销售营销 15,540；生产制造 1,853；行政及其他 5,105`;
+
+    const XIAOMI_SUMMARY_TEXT = `小米集团组织结构信息摘要（可推导组织结构图）
+一、公司治理层（Governance）
+最高治理机构
+董事会（Board of Directors）
+
+核心成员：
+雷军 — 董事长、执行董事、CEO
+林斌 — 副董事长、执行董事
+卢伟冰 — 执行董事、集团合伙人、总裁
+蔡金青 — 独立非执行董事
+
+董事会下设委员会
+审核委员会（Audit Committee）
+企业管治委员会（Corporate Governance Committee）
+提名委员会（Nomination Committee）
+薪酬委员会（Remuneration Committee）
+
+二、ESG与治理体系
+治理链条：
+董事会
+↓
+企业管治委员会
+↓
+可持续发展委员会
+↓
+各相关部门
+↓
+ESG工作组
+
+相关治理机构：
+ESG管理体系
+可持续发展委员会
+ESG工作组
+
+三、管理层（Executive Management）
+CEO
+↓
+高级管理团队
+
+管理层组成：
+CEO（雷军）
+总裁 / 合伙人团队（卢伟冰等）
+各事业群负责人
+各职能部门负责人
+
+四、业务事业群结构（Business Divisions）
+小米业务围绕 “人车家全生态战略”。
+
+主要业务板块
+1 手机 × AIoT事业群
+包含：
+智能手机
+IoT设备
+智能家居
+生活消费电子
+
+2 IoT与生活消费产品事业群
+包含：
+智能家电
+可穿戴设备
+智能设备生态
+
+3 互联网服务事业群
+包含：
+广告业务
+内容服务
+云服务
+应用生态
+
+4 智能电动汽车事业部
+包含：
+小米汽车
+智能驾驶
+汽车软件系统
+
+五、集团职能体系（Corporate Functions）
+核心职能部门：
+研发（R&D）
+销售与营销（Sales & Marketing）
+生产制造（Manufacturing）
+供应链与采购（Supply Chain）
+财务（Finance）
+行政与综合管理（Administration）
+法务与合规（Legal & Compliance）
+
+员工结构：
+总员工：46,426
+职能人员：
+研发人员：21,190
+销售营销：15,540
+生产制造：1,853
+行政及其他：5,105
+
+六、技术研发体系（Technology Organization）
+研发人员规模：
+21,190人
+
+核心技术团队：
+小米AI实验室
+澎湃OS研发团队
+
+主要技术方向：
+AI
+IoT
+5G
+操作系统
+自动驾驶
+
+七、子公司体系（Subsidiary Structure）
+集团通过多个子公司运营：
+小米通讯技术有限公司
+业务：智能手机研发制造
+
+小米汽车有限公司
+业务：智能电动汽车
+
+小米之家商业有限公司
+业务：线下零售
+
+小米科技有限责任公司
+业务：互联网与AIoT平台
+
+八、全球区域组织（Global Regional Structure）
+小米采用 全球区域运营架构。
+
+主要区域组织：
+中国区（China）
+欧洲区（Europe）
+印度区（India）
+东南亚区（Southeast Asia）
+拉美区（Latin America）
+中东及非洲区（Middle East & Africa）
+北美区（North America）
+
+每个区域通常包含：
+区域销售
+市场营销
+渠道管理
+售后服务
+本地运营团队`;
+
+    const appState = {
+      provider: 'openai', baseUrl: '', modelName: '', apiKey: '', extraHeaders: '', connected: false, lastError: '',
+      sourceMode: 'upload',
+      annualFileName: '',
+      currentView: 'prompt',
+      currentScale: 1,
+      currentCopyText: '',
+      currentRenderToken: 0,
+      companyViewerScale: 1,
+      selectedCompany: 'roborock',
+      company: { name: '未识别', year: '未识别', industry: '未识别', business: '未识别' },
+      currentQuestions: [], blmQuestions: [],
+      unlockProgress: { current: 0, blm: 0, future: 0 },
+      confirmedSteps: { current: {}, blm: {}, future: {} },
+      quizAnswered: { current: {}, blm: {} },
+      loggedIn: false,
+      loginName: '',
+      loginCode: ''
+    };
+
+    const homePage = document.getElementById('homePage');
+    const modelPage = document.getElementById('modelPage');
+    const orgPage = document.getElementById('orgPage');
+    const inviteCodeInput = document.getElementById('inviteCodeInput');
+    const inviteNameInput = document.getElementById('inviteNameInput');
+    const loginConfirmBtn = document.getElementById('loginConfirmBtn');
+    const loginStatusBox = document.getElementById('loginStatusBox');
+    const loginFormWrap = document.getElementById('loginFormWrap');
+    const loginWelcomeBox = document.getElementById('loginWelcomeBox');
+    const loginWelcomeText = document.getElementById('loginWelcomeText');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const accessLockedTip = document.getElementById('accessLockedTip');
+    const LOGIN_GATED_SELECTORS = [
+      '#goModelPage', '#goOrgPage',
+      '[data-model-section]', '[data-org-section]',
+      '[data-current-view]', '[data-blm-view]', '[data-future-view]',
+      '.company-choice-btn', '#companyZoomOutBtn', '#companyZoomInBtn',
+      '#fillProviderDefault', '#toggleKeyBtn', '#saveConfigBtn', '#clearConfigBtn', '#testConnectionBtn', '#simulateSuccessBtn',
+      '#uploadModeBtn', '#defaultModeBtn', '#annualFile',
+      '#baseUrlInput', '#modelNameInput', '#apiKeyInput', '#extraHeadersInput',
+      '#currentConfirmBtn', '#blmConfirmBtn', '#futureConfirmBtn',
+      '.confirm-btn', '.blm-rail-btn'
+    ];
+
+    function getLoginGatedElements() {
+      return Array.from(new Set(LOGIN_GATED_SELECTORS.flatMap(selector => Array.from(document.querySelectorAll(selector)))));
+    }
+
+    function renderLoginState() {
+      const isLoggedIn = !!appState.loggedIn;
+      loginFormWrap.classList.toggle('hidden', isLoggedIn);
+      loginWelcomeBox.classList.toggle('hidden', !isLoggedIn);
+      accessLockedTip.classList.toggle('hidden', isLoggedIn);
+      if (isLoggedIn) {
+        loginWelcomeText.textContent = '欢迎：' + (appState.loginName || '用户');
+      }
+    }
+
+    function updateProgramLockState() {
+      const isLoggedIn = !!appState.loggedIn;
+      getLoginGatedElements().forEach(el => {
+        if (el === inviteCodeInput || el === inviteNameInput || el === loginConfirmBtn || el === logoutBtn) return;
+        if (el.matches('[data-current-view], [data-blm-view], [data-future-view], .confirm-btn')) return;
+        if ('disabled' in el) el.disabled = !isLoggedIn;
+        el.classList.toggle('login-locked', !isLoggedIn);
+      });
+      if (isLoggedIn) {
+        initializeSequentialLocks();
+      } else {
+        document.querySelectorAll('[data-current-view], [data-blm-view], [data-future-view], .confirm-btn').forEach(el => {
+          if ('disabled' in el) el.disabled = true;
+          el.classList.add('login-locked');
+        });
+      }
+      renderLoginState();
+    }
+
+    function persistLoginState() {
+      if (appState.loggedIn) {
+        sessionStorage.setItem('org_invite_login', JSON.stringify({ code: appState.loginCode, name: appState.loginName }));
+      } else {
+        sessionStorage.removeItem('org_invite_login');
+      }
+    }
+
+    function setLoggedInUser(code, name) {
+      appState.loggedIn = true;
+      appState.loginCode = code;
+      appState.loginName = name;
+      loginStatusBox.className = 'success login-status-box';
+      loginStatusBox.textContent = '验证通过，已解锁程序。';
+      persistLoginState();
+      updateProgramLockState();
+    }
+
+    function clearLoggedInUser(message = '您已退出登录，程序重新锁定。') {
+      appState.loggedIn = false;
+      appState.loginCode = '';
+      appState.loginName = '';
+      inviteCodeInput.value = '';
+      inviteNameInput.value = '';
+      loginStatusBox.className = 'notice login-status-box';
+      loginStatusBox.textContent = message;
+      persistLoginState();
+      updateProgramLockState();
+    }
+
+    async function fetchInvitePairs() {
+      const res = await fetch(INVITE_FILE_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error('邀请码文件读取失败：HTTP ' + res.status);
+      const text = await res.text();
+      const matches = [...text.matchAll(/([^,\s]+)\s*,\s*([^,\s]+)/g)];
+      return matches.map(item => ({ code: item[1].trim(), name: item[2].trim() }));
+    }
+
+    async function validateInviteLogin(code, name) {
+      const pairs = await fetchInvitePairs();
+      return pairs.find(item => item.code === code && item.name === name) || null;
+    }
+
+    async function restoreLoginFromSession() {
+      const raw = sessionStorage.getItem('org_invite_login');
+      if (!raw) {
+        updateProgramLockState();
+        return;
+      }
+      try {
+        const saved = JSON.parse(raw);
+        if (!saved?.code || !saved?.name) throw new Error('empty');
+        loginStatusBox.className = 'notice login-status-box';
+        loginStatusBox.textContent = '正在校验上次登录状态…';
+        const matched = await validateInviteLogin(String(saved.code).trim(), String(saved.name).trim());
+        if (matched) {
+          setLoggedInUser(matched.code, matched.name);
+        } else {
+          clearLoggedInUser('登录名单已更新，请重新输入邀请码和姓名。');
+        }
+      } catch (err) {
+        clearLoggedInUser('登录状态恢复失败，请重新登录。');
+      }
+    }
+
+    loginConfirmBtn?.addEventListener('click', async () => {
+      const code = inviteCodeInput.value.trim();
+      const name = inviteNameInput.value.trim();
+      if (!code || !name) {
+        loginStatusBox.className = 'warning login-status-box';
+        loginStatusBox.textContent = '请输入邀请码和姓名后再确认。';
+        return;
+      }
+      loginConfirmBtn.disabled = true;
+      loginStatusBox.className = 'notice login-status-box';
+      loginStatusBox.textContent = '正在校验邀请码，请稍候…';
+      try {
+        const matched = await validateInviteLogin(code, name);
+        if (!matched) {
+          appState.loggedIn = false;
+          persistLoginState();
+          updateProgramLockState();
+          loginStatusBox.className = 'danger login-status-box';
+          loginStatusBox.textContent = '邀请码和姓名不匹配，程序仍处于锁定状态。';
+          return;
+        }
+        setLoggedInUser(matched.code, matched.name);
+      } catch (err) {
+        appState.loggedIn = false;
+        persistLoginState();
+        updateProgramLockState();
+        loginStatusBox.className = 'danger login-status-box';
+        loginStatusBox.textContent = '校验失败：' + err.message;
+      } finally {
+        loginConfirmBtn.disabled = false;
+      }
+    });
+
+    [inviteCodeInput, inviteNameInput].forEach(input => input?.addEventListener('keydown', event => {
+      if (event.key === 'Enter') loginConfirmBtn.click();
+    }));
+
+    logoutBtn?.addEventListener('click', () => {
+      clearLoggedInUser();
+      showPage('orgPage');
+    });
+
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.getElementById('goModelPage')?.addEventListener('click', () => showPage('modelPage'));
+    document.getElementById('goOrgPage')?.addEventListener('click', () => showPage('orgPage'));
+    document.querySelectorAll('.back-home').forEach(btn => btn.addEventListener('click', () => showPage('orgPage')));
+
+    function toggleMenu(menuId, btnId) {
+      const menu = document.getElementById(menuId);
+      const btn = document.getElementById(btnId);
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+        btn.textContent = menu.classList.contains('hidden') ? '展开菜单' : '收起菜单';
+      });
+    }
+    document.getElementById('modelMenu')?.classList.add('hidden');
+    document.getElementById('orgMenu')?.classList.add('hidden');
+    if (document.getElementById('toggleModelMenu')) toggleMenu('modelMenu', 'toggleModelMenu');
+    if (document.getElementById('toggleOrgMenu')) toggleMenu('orgMenu', 'toggleOrgMenu');
+
+    document.querySelectorAll('.home-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width - 0.5) * 16;
+        const y = -((e.clientY - rect.top) / rect.height - 0.5) * 16;
+        card.style.transform = `perspective(1000px) rotateY(${x}deg) rotateX(${y}deg) translateY(-3px)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg)'; });
+    });
+
+    document.querySelectorAll('[data-model-section]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-model-section]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.model-section').forEach(s => s.classList.add('hidden'));
+        btn.classList.add('active');
+        document.getElementById('model-' + btn.dataset.modelSection).classList.remove('hidden');
+      });
+    });
+
+    document.querySelectorAll('[data-org-section]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-org-section]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.org-section').forEach(s => s.classList.add('hidden'));
+        btn.classList.add('active');
+        document.getElementById('org-' + btn.dataset.orgSection).classList.remove('hidden');
+      });
+    });
+
+    const providerGrid = document.getElementById('providerGrid');
+    providerGrid.querySelectorAll('.radio-card').forEach(card => {
+      card.addEventListener('click', () => {
+        providerGrid.querySelectorAll('.radio-card').forEach(c => { c.classList.remove('active'); c.querySelector('input').checked = false; });
+        card.classList.add('active');
+        card.querySelector('input').checked = true;
+        appState.provider = card.dataset.provider;
+      });
+    });
+
+    const baseUrlInput = document.getElementById('baseUrlInput');
+    const modelNameInput = document.getElementById('modelNameInput');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const extraHeadersInput = document.getElementById('extraHeadersInput');
+    const annualFileInput = document.getElementById('annualFile');
+
+    document.getElementById('fillProviderDefault').addEventListener('click', () => {
+      const cfg = defaultConfigs[appState.provider];
+      baseUrlInput.value = cfg.baseUrl;
+      modelNameInput.value = cfg.model;
+    });
+
+    document.getElementById('toggleKeyBtn').addEventListener('click', () => { apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password'; });
+
+    document.getElementById('saveConfigBtn').addEventListener('click', () => {
+      appState.baseUrl = baseUrlInput.value.trim();
+      appState.modelName = modelNameInput.value.trim();
+      appState.apiKey = apiKeyInput.value.trim();
+      appState.extraHeaders = extraHeadersInput.value.trim();
+      sessionStorage.setItem('org_ai_config', JSON.stringify({ provider: appState.provider, baseUrl: appState.baseUrl, modelName: appState.modelName, apiKey: appState.apiKey, extraHeaders: appState.extraHeaders, connected: appState.connected }));
+      updateStateViews();
+      alert('当前配置已保存到浏览器会话。');
+    });
+
+    document.getElementById('clearConfigBtn').addEventListener('click', () => {
+      baseUrlInput.value = '';
+      modelNameInput.value = '';
+      apiKeyInput.value = '';
+      extraHeadersInput.value = '';
+      appState.baseUrl = '';
+      appState.modelName = '';
+      appState.apiKey = '';
+      appState.extraHeaders = '';
+      appState.connected = false;
+      sessionStorage.removeItem('org_ai_config');
+      updateStateViews();
+      document.getElementById('testResultBox').className = 'warning';
+      document.getElementById('testResultBox').textContent = '配置已清除，尚未进行连通性测试。';
+    });
+
+    async function performConnectivityTest() {
+      const baseUrl = baseUrlInput.value.trim();
+      const model = modelNameInput.value.trim();
+      const apiKey = apiKeyInput.value.trim();
+      if (!baseUrl || !model || !apiKey) throw new Error('请先填写接口地址、模型名称和API Key。');
+      const payload = { model, messages: [ { role: 'system', content: 'You are a connectivity test assistant. Reply with exactly: 连接成功' }, { role: 'user', content: '请只返回：连接成功' } ], temperature: 0 };
+      const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey };
+      if (extraHeadersInput.value.trim()) {
+        try { Object.assign(headers, JSON.parse(extraHeadersInput.value.trim())); }
+        catch (e) { throw new Error('自定义请求头不是合法 JSON。'); }
+      }
+      const res = await fetch(baseUrl, { method: 'POST', headers, body: JSON.stringify(payload) });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error('HTTP ' + res.status + '：' + text.slice(0, 260));
+      }
+      const data = await res.json();
+      return data?.choices?.[0]?.message?.content || data?.output_text || JSON.stringify(data).slice(0, 100);
+    }
+
+    document.getElementById('testConnectionBtn').addEventListener('click', async () => {
+      const box = document.getElementById('testResultBox');
+      box.className = 'warning';
+      box.textContent = '正在执行连通性测试，请稍候…';
+      try {
+        appState.baseUrl = baseUrlInput.value.trim();
+        appState.modelName = modelNameInput.value.trim();
+        appState.apiKey = apiKeyInput.value.trim();
+        appState.extraHeaders = extraHeadersInput.value.trim();
+        const result = await performConnectivityTest();
+        appState.connected = true; appState.lastError = '';
+        box.className = 'success'; box.textContent = '连接成功。模型返回：' + result;
+      } catch (err) {
+        appState.connected = false; appState.lastError = err.message;
+        box.className = 'danger'; box.textContent = '连接失败：' + err.message;
+      }
+      updateStateViews();
+      sessionStorage.setItem('org_ai_config', JSON.stringify({ provider: appState.provider, baseUrl: appState.baseUrl, modelName: appState.modelName, apiKey: appState.apiKey, extraHeaders: appState.extraHeaders, connected: appState.connected }));
+    });
+
+    document.getElementById('simulateSuccessBtn').addEventListener('click', () => {
+      appState.baseUrl = baseUrlInput.value.trim() || defaultConfigs[appState.provider].baseUrl;
+      appState.modelName = modelNameInput.value.trim() || defaultConfigs[appState.provider].model;
+      appState.apiKey = apiKeyInput.value.trim() || 'demo-key';
+      appState.connected = true;
+      document.getElementById('testResultBox').className = 'success';
+      document.getElementById('testResultBox').textContent = '演示结果：连接成功。';
+      updateStateViews();
+    });
+
+    function setSourceMode(mode) {
+      appState.sourceMode = mode;
+      const uploadModeBtn = document.getElementById('uploadModeBtn');
+      const defaultModeBtn = document.getElementById('defaultModeBtn');
+      const hint = document.getElementById('sourceModeHint');
+      if (uploadModeBtn) uploadModeBtn.classList.toggle('active', mode === 'upload');
+      if (defaultModeBtn) defaultModeBtn.classList.toggle('active', mode === 'default');
+      if (annualFileInput) {
+        annualFileInput.disabled = mode === 'default';
+        annualFileInput.style.opacity = mode === 'default' ? '0.55' : '1';
+      }
+      if (hint) {
+        hint.className = mode === 'default' ? 'success' : 'notice';
+        hint.textContent = mode === 'default'
+          ? '当前为系统默认年报PDF模式。企业识别、当前结构认知、BLM分析与未来结构设计都将使用系统提供的默认信息与模板。'
+          : '当前为上传年报PDF模式。企业识别、当前结构认知、BLM分析与未来结构设计都将优先使用用户上传的年报 PDF。';
+      }
+      updateStateViews();
+    }
+
+    document.getElementById('uploadModeBtn')?.addEventListener('click', () => setSourceMode('upload'));
+    document.getElementById('defaultModeBtn')?.addEventListener('click', () => setSourceMode('default'));
+    annualFileInput?.addEventListener('change', () => {
+      appState.annualFileName = annualFileInput.files[0]?.name || '';
+      if (appState.annualFileName) setSourceMode('default');
+      updateStateViews();
+    });
+
+    const SEQUENTIAL_MODULES = {
+      current: {
+        selector: '[data-current-view]',
+        order: ['prompt', 'info', 'summary', 'chart', 'reflect'],
+        getKey: btn => btn.dataset.currentView
+      },
+      blm: {
+        selector: '[data-blm-view]',
+        order: ['learn', 'prompt', 'analysis', 'summary', 'reflect'],
+        getKey: btn => btn.dataset.blmView
+      },
+      future: {
+        selector: '[data-future-view]',
+        order: ['prompt', 'points', 'chart', 'reflect'],
+        getKey: btn => btn.dataset.futureView
+      }
+    };
+
+    function applySequentialLocks(moduleName) {
+      const config = SEQUENTIAL_MODULES[moduleName];
+      if (!config) return;
+      const unlockedIndex = appState.unlockProgress[moduleName] ?? 0;
+      document.querySelectorAll(config.selector).forEach(btn => {
+        const idx = config.order.indexOf(config.getKey(btn));
+        const isUnlocked = idx !== -1 && idx <= unlockedIndex;
+        btn.disabled = !isUnlocked;
+        btn.classList.toggle('locked', !isUnlocked);
+      });
+    }
+
+    function unlockNextInSequence(moduleName, currentKey) {
+      const config = SEQUENTIAL_MODULES[moduleName];
+      if (!config) return;
+      const idx = config.order.indexOf(currentKey);
+      if (idx === -1) return;
+      if ((appState.unlockProgress[moduleName] ?? 0) === idx && idx < config.order.length - 1) {
+        appState.unlockProgress[moduleName] = idx + 1;
+        applySequentialLocks(moduleName);
+      }
+    }
+
+    function initializeSequentialLocks() {
+      applySequentialLocks('current');
+      applySequentialLocks('blm');
+      applySequentialLocks('future');
+      if (appState.loggedIn) {
+        document.querySelectorAll('[data-current-view], [data-blm-view], [data-future-view], .confirm-btn').forEach(el => el.classList.remove('login-locked'));
+      }
+    }
+
+    function isStepConfirmed(moduleName, stepKey) {
+      return !!(appState.confirmedSteps[moduleName] && appState.confirmedSteps[moduleName][stepKey]);
+    }
+
+    function markStepConfirmed(moduleName, stepKey) {
+      if (!appState.confirmedSteps[moduleName]) appState.confirmedSteps[moduleName] = {};
+      appState.confirmedSteps[moduleName][stepKey] = true;
+      unlockNextInSequence(moduleName, stepKey);
+      updateModuleConfirmButton(moduleName);
+    }
+
+    function setQuizAnswerProgress(moduleName, stepKey, answeredCount, totalCount) {
+      if (!appState.quizAnswered[moduleName]) appState.quizAnswered[moduleName] = {};
+      appState.quizAnswered[moduleName][stepKey] = { answeredCount, totalCount };
+      updateModuleConfirmButton(moduleName);
+    }
+
+    function getCurrentModuleStep(moduleName) {
+      if (moduleName === 'current') return appState.currentView;
+      if (moduleName === 'blm') return appState.blmView || 'learn';
+      if (moduleName === 'future') return appState.futureView || 'prompt';
+      return '';
+    }
+
+    function getModuleConfirmConfig(moduleName) {
+      const stepKey = getCurrentModuleStep(moduleName);
+      const isQuizStep = (moduleName === 'current' && stepKey === 'reflect') || (moduleName === 'blm' && stepKey === 'reflect') || (moduleName === 'future' && stepKey === 'reflect');
+      const progress = appState.quizAnswered[moduleName] && appState.quizAnswered[moduleName][stepKey];
+      const isReady = isQuizStep ? !!(progress && progress.totalCount > 0 && progress.answeredCount >= progress.totalCount) : true;
+      const isDone = isStepConfirmed(moduleName, stepKey);
+      return { stepKey, isQuizStep, isReady, isDone };
+    }
+
+    function updateModuleConfirmButton(moduleName) {
+      const btnMap = { current: 'currentConfirmBtn', blm: 'blmConfirmBtn', future: 'futureConfirmBtn' };
+      const btn = document.getElementById(btnMap[moduleName]);
+      if (!btn) return;
+      const { stepKey, isQuizStep, isReady, isDone } = getModuleConfirmConfig(moduleName);
+      const config = SEQUENTIAL_MODULES[moduleName];
+      const isLastStep = config ? config.order.indexOf(stepKey) === config.order.length - 1 : false;
+      btn.classList.toggle('done', isDone);
+      if (isDone) {
+        btn.disabled = true;
+        btn.textContent = isLastStep ? '本模块已完成' : '已确认，已解锁下一步';
+        return;
+      }
+      if (isQuizStep) {
+        btn.textContent = isLastStep ? '完成本模块' : '本模块完成，解锁下一步';
+        btn.disabled = !isReady;
+      } else {
+        btn.textContent = isLastStep ? '完成本模块' : '我明白了，解锁下一步';
+        btn.disabled = false;
+      }
+    }
+
+    function bindModuleConfirmButtons() {
+      const btnMap = { current: 'currentConfirmBtn', blm: 'blmConfirmBtn', future: 'futureConfirmBtn' };
+      Object.entries(btnMap).forEach(([moduleName, id]) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          const { stepKey, isReady, isDone } = getModuleConfirmConfig(moduleName);
+          if (!stepKey || isDone) return;
+          if (!isReady) {
+            alert('请先完成当前模块要求后，再解锁下一步。');
+            return;
+          }
+          markStepConfirmed(moduleName, stepKey);
+        });
+      });
+    }
+
+    function updateStateViews() {
+      const providerLabel = defaultConfigs[appState.provider]?.providerLabel || appState.provider;
+      const selectedCompany = COMPANY_SOURCES[appState.selectedCompany] || COMPANY_SOURCES.roborock;
+      const sourceLabel = selectedCompany.title;
+      document.getElementById('stateProvider').textContent = providerLabel;
+      document.getElementById('stateBaseUrl').textContent = appState.baseUrl || '未设置';
+      document.getElementById('stateModelName').textContent = appState.modelName || '未设置';
+      document.getElementById('stateConn').textContent = appState.connected ? '已连接' : '未连接';
+      document.getElementById('globalModelStatus').textContent = '当前模型：' + (appState.connected ? providerLabel + '（已连接）' : '未连接');
+      document.getElementById('globalCompanyStatus').textContent = '当前企业：' + appState.company.name;
+      document.getElementById('globalSourceStatus').textContent = '资料来源：' + sourceLabel;
+      const companyBadge = document.getElementById('companyBadge');
+      if (companyBadge) companyBadge.textContent = '当前企业：' + appState.company.name;
+      const sourceBadge = document.getElementById('sourceBadge');
+      if (sourceBadge) sourceBadge.textContent = '资料来源：' + sourceLabel;
+      document.getElementById('currentModeNotice').textContent = '当前采用固定文件调用方式。组织结构相关信息、推导摘要与结构图均按预置文件模板展示。';
+    }
+
+    function loadSessionConfig() {
+      const raw = sessionStorage.getItem('org_ai_config');
+      if (!raw) return;
+      try {
+        const cfg = JSON.parse(raw);
+        appState.provider = cfg.provider || 'openai';
+        appState.baseUrl = cfg.baseUrl || '';
+        appState.modelName = cfg.modelName || '';
+        appState.apiKey = cfg.apiKey || '';
+        appState.extraHeaders = cfg.extraHeaders || '';
+        appState.connected = !!cfg.connected;
+        providerGrid.querySelectorAll('.radio-card').forEach(card => {
+          const active = card.dataset.provider === appState.provider;
+          card.classList.toggle('active', active);
+          card.querySelector('input').checked = active;
+        });
+        baseUrlInput.value = appState.baseUrl;
+        modelNameInput.value = appState.modelName;
+        apiKeyInput.value = appState.apiKey;
+        extraHeadersInput.value = appState.extraHeaders;
+      } catch (e) {}
+    }
+
+    function applySelectedCompanyMeta() {
+      const item = COMPANY_SOURCES[appState.selectedCompany] || COMPANY_SOURCES.roborock;
+      appState.company = {
+        name: item.name,
+        year: item.name === '重庆大学' ? '机构设置页面' : '2024',
+        industry: item.name === '重庆大学' ? '高等教育 / 高校治理' : (item.name === '小米科技' ? '消费电子 / 智能制造 / 科技硬件' : '智能清洁设备 / 科技硬件'),
+        business: item.name === '重庆大学' ? '校级机构设置、党政群团、教学科研与支撑机构' : (item.name === '小米科技' ? '智能手机、IoT与生活消费产品、互联网服务' : '扫地机器人、洗地机、智能清洁产品')
+      };
+      document.getElementById('companyNameValue') && (document.getElementById('companyNameValue').textContent = appState.company.name);
+      document.getElementById('reportYearValue') && (document.getElementById('reportYearValue').textContent = appState.company.year);
+      document.getElementById('industryValue') && (document.getElementById('industryValue').textContent = appState.company.industry);
+      document.getElementById('businessValue') && (document.getElementById('businessValue').textContent = appState.company.business);
+      const box = document.getElementById('identifyResultBox');
+      if (box) {
+        box.className = 'success';
+        box.textContent = '已切换到“' + item.name + '”。后续模块将围绕当前所选公司或机构的预置文件进行展示。';
+      }
+      updateStateViews();
+    }
+
+    function buildOfficePreviewUrl(url) {
+      return 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(url);
+    }
+
+    function buildCompanyDocxViewer(item) {
+      const previewUrl = buildOfficePreviewUrl(item.url);
+      return `
+        <div class="docx-embed-shell">
+          <div class="docx-embed-toolbar">
+            <div>
+              <strong>${escapeHtml(item.title)}</strong>
+              <div class="section-sub" style="margin-top:6px;">${escapeHtml(item.subtitle || '使用 Office 在线预览嵌入。')}</div>
+            </div>
+            <a class="small-btn" href="${item.url}" target="_blank" rel="noopener noreferrer">新窗口打开原文档</a>
+          </div>
+          <iframe class="docx-embed-frame" src="${previewUrl}" title="${escapeHtml(item.title)}"></iframe>
+        </div>`;
+    }
+
+    function buildBlockedWebViewer(item) {
+      return `
+        <div class="docx-embed-shell">
+          <div class="docx-embed-toolbar">
+            <div>
+              <strong>${escapeHtml(item.title)}</strong>
+              <div class="section-sub" style="margin-top:6px;">${escapeHtml(item.subtitle || '')}</div>
+            </div>
+            <div class="company-viewer-tools">
+              <a class="small-btn" href="${item.url}" target="_blank" rel="noopener noreferrer">打开官网原页面</a>
+              <a class="small-btn" href="${item.mirrorUrl}" target="_blank" rel="noopener noreferrer">打开文本镜像</a>
+            </div>
+          </div>
+          <div class="notice" style="margin:14px;">该官网设置了禁止 iframe 引用，因此浏览器内嵌会直接报“该网页拒绝被引用”。现已改为在框内预览可嵌入的文本镜像，同时保留官网原页面入口。</div>
+          <iframe class="company-viewer-frame" src="${item.mirrorUrl}" title="${escapeHtml(item.title)} - 文本镜像预览"></iframe>
+        </div>`;
+    }
+
+    function renderCompanyViewer() {
+      const item = COMPANY_SOURCES[appState.selectedCompany] || COMPANY_SOURCES.roborock;
+      document.querySelectorAll('.company-choice-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.company === appState.selectedCompany));
+      document.getElementById('companyViewerTitle').textContent = item.title;
+      document.getElementById('companyViewerSub').textContent = item.subtitle || '共享模块框：点击不同企业按钮，在此处查看对应年报或机构设置网页。';
+      const stage = document.getElementById('companyViewerStage');
+      stage.style.transform = 'scale(' + appState.companyViewerScale + ')';
+      if (item.type === 'docx') {
+        stage.innerHTML = buildCompanyDocxViewer(item);
+      } else if (item.type === 'web_blocked') {
+        stage.innerHTML = buildBlockedWebViewer(item);
+      } else {
+        stage.innerHTML = '<iframe class="company-viewer-frame" src="' + item.url + '" title="' + item.title + '"></iframe>';
+      }
+      applySelectedCompanyMeta();
+      renderBlmSummaryView();
+      const reflectPanel = document.getElementById('blmReflectPanel');
+      if (reflectPanel && reflectPanel.classList.contains('active')) {
+        renderBlmReflectView();
+      }
+      updateModuleConfirmButton('current');
+      updateModuleConfirmButton('blm');
+      updateModuleConfirmButton('future');
+    }
+
+    document.querySelectorAll('.company-choice-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        appState.selectedCompany = btn.dataset.company;
+        renderCompanyViewer();
+    renderFutureView('prompt');
+      });
+    });
+
+    document.getElementById('companyZoomInBtn').addEventListener('click', () => {
+      appState.companyViewerScale = Math.min(1.8, appState.companyViewerScale + 0.1);
+      document.getElementById('companyViewerStage').style.transform = 'scale(' + appState.companyViewerScale + ')';
+    });
+    document.getElementById('companyZoomOutBtn').addEventListener('click', () => {
+      appState.companyViewerScale = Math.max(0.6, appState.companyViewerScale - 0.1);
+      document.getElementById('companyViewerStage').style.transform = 'scale(' + appState.companyViewerScale + ')';
+    });
+
+
+    const demoBlmQuestions = [
+      { type: 'strategy_focus', question: '根据BLM提取结果，该公司未来2-3年的核心战略重点最可能是什么？', options: ['国际化经营与市场扩张', '完全退出海外市场', '只做单一产品', '压缩研发投入'], answer: 0, explanation: '如果材料显示海外拓展、产品升级和市场扩张，最优战略重点通常是国际化经营与市场扩张。' },
+      { type: 'capability_match', question: '若公司重点扩大海外市场，最需要优先强化的关键能力是什么？', options: ['跨区域协同能力', '削减客服能力', '减少产品适配', '弱化供应链整合'], answer: 0, explanation: '海外市场扩展最需要提升跨区域协同与本地响应能力。' },
+      { type: 'structure_change', question: '若产品线和区域市场同时扩张，组织结构最需要考虑哪种变革？', options: ['引入混合型组织', '取消市场部门', '取消供应链职能', '只保留财务与HR'], answer: 0, explanation: '产品线与区域双扩张时，常需要在职能基础上引入事业部或混合型组织。' }
+    ];
+
+    const SHITOU_ORG_REFLECTION_QUESTIONS = [
+  {
+    question: '根据组织结构图判断，石头科技当前组织结构最符合哪一种类型？',
+    options: ['区域事业部制', '产品事业部 + 职能中心的矩阵化组织结构', '纯职能制组织结构', '完全项目制组织结构'],
+    answer: 'B',
+    explanation: '石头科技的组织结构中，一方面设置了扫地机器人事业部、洗地机事业部、洗烘一体机事业部等产品事业部；另一方面又保留技术研发中心、供应链与制造中心、市场销售中心等职能平台。因此其结构本质是“产品事业部 + 职能中心”的矩阵化组织结构。'
+  },
+  {
+    question: '石头科技在产品事业部之外设置技术研发中心、供应链中心等职能平台，其主要管理目的是什么？',
+    options: ['让每个事业部完全独立运行', '强化专业能力共享与资源集中', '减少总部控制能力', '取消产品研发职能'],
+    answer: 'B',
+    explanation: '在矩阵型结构中，职能中心通常承担专业能力平台的角色，例如研发、供应链、财务等，从而为多个产品事业部提供统一能力支持，提高资源利用效率。'
+  },
+  {
+    question: '在“产品事业部 + 职能中心”的组织结构下，企业最容易面临的管理挑战是什么？',
+    options: ['产品研发能力不足', '事业部与职能中心之间的协调复杂度增加', '公司无法进行国际化经营', '企业不再需要市场部门'],
+    answer: 'B',
+    explanation: '矩阵组织虽然可以兼顾专业能力与产品经营，但由于存在“双线管理”，事业部与职能中心之间需要频繁协同，因此协调成本与沟通复杂度会增加。'
+  },
+  {
+    question: '随着石头科技产品线持续扩展，这种组织结构最有利于支持哪一种发展模式？',
+    options: ['单一产品战略', '产品多元化与技术平台共享并行发展', '完全区域化经营模式', '取消研发投入'],
+    answer: 'B',
+    explanation: '“产品事业部 + 职能中心”的矩阵结构能够同时支持多个产品线发展，同时通过研发、供应链等平台共享能力，因此特别适合多产品、多技术平台的科技企业。'
+  }
+];
+
+    const XIAOMI_ORG_REFLECTION_QUESTIONS = [
+      {
+        question: '根据年报披露的信息，小米集团当前整体组织模式最接近哪一种？',
+        options: ['单一职能制', '完全区域化组织', '多事业部加平台生态型结构', '纯项目制组织'],
+        answer: 'C',
+        explanation: '小米同时经营手机、AIoT、互联网服务和汽车等业务，并保留统一研发、供应链、财务等平台职能，因此整体更接近多事业部加平台生态型结构。'
+      },
+      {
+        question: '小米设置多个业务板块并保留共享平台，最主要体现了哪种组织管理特点？',
+        options: ['业务独立与平台协同并存', '所有业务完全由区域团队主导', '总部不再保留任何职能部门', '组织完全围绕单一产品运行'],
+        answer: 'A',
+        explanation: '小米一方面按业务板块分工，另一方面又保留研发、供应链、财务等共享平台，这正体现了业务独立与平台协同并存的组织特征。'
+      },
+      {
+        question: '小米在中国、欧洲、印度等地区设置区域组织，说明其结构中哪一维度较为突出？',
+        options: ['区域运营维度', '高校治理维度', '单工厂管理维度', '纯研发实验室维度'],
+        answer: 'A',
+        explanation: '区域组织的设立意味着公司不仅按业务板块运作，也需要按不同国家和市场进行本地化经营，因此区域运营维度较为突出。'
+      },
+      {
+        question: '从组织结构角度看，小米保留较强总部平台的主要价值是什么？',
+        options: ['让所有业务各自为战', '避免任何协同机制', '支持跨业务的技术与资源复用', '取消全球市场管理'],
+        answer: 'C',
+        explanation: '总部平台可以将研发、操作系统、供应链、品牌等能力在多业务之间共享，降低重复建设，增强生态协同。'
+      }
+    ];
+
+    const SHITOU_BLM_REFLECTION_QUESTIONS = [
+      {
+        question: '随着海外市场扩张和清洁电器多品类发展，石头科技未来 2-3 年的战略重点最可能是哪一项？',
+        options: ['转向纯代工模式', '收缩海外业务以降低复杂度', '减少研发投入换取短期利润', '强化多品类布局并持续推进全球化增长'],
+        answer: 'D',
+        explanation: '从 BLM 视角看，石头科技的增长主题更接近“多品类扩张 + 国际化经营”，而不是回到单一产品或压缩研发。'
+      },
+      {
+        question: '当石头科技同时推进多产品线和全球市场拓展时，组织上最容易遇到的核心挑战是什么？',
+        options: ['产品线与区域市场协同难度上升', '总部职能自动消失', '企业不再需要品牌能力', '研发团队会完全退出决策'],
+        answer: 'A',
+        explanation: 'BLM 中“业务设计”强调战略落地需要组织承接。多产品线和多区域并行时，最典型的问题就是产品、区域与平台之间的协同复杂度明显提高。'
+      },
+      {
+        question: '若海外收入占比持续提升，石头科技最需要优先补强的关键能力更可能是什么？',
+        options: ['全球市场运营与本地化能力', '单一工厂封闭式生产能力', '完全取消售后服务能力', '弱化渠道与品牌管理能力'],
+        answer: 'A',
+        explanation: '国际化扩张不仅要有研发和产品，还需要本地渠道、品牌、售后和市场运营能力，因此全球市场运营与本地化能力是更关键的能力项。'
+      },
+      {
+        question: '从 BLM 的“组织支撑”角度看，石头科技更合理的组织演进方向是哪一项？',
+        options: ['继续完全停留在单一职能制', '只保留区域团队，不设产品责任人', '完全取消总部共享平台', '在总部平台基础上逐步引入产品线或轻矩阵机制'],
+        answer: 'D',
+        explanation: '为了支撑多品类和国际化增长，企业通常不是简单取消总部，而是在保留平台能力的同时，增强产品线和区域经营责任，向轻量混合制演进。'
+      }
+    ];
+
+    const XIAOMI_BLM_REFLECTION_QUESTIONS = [
+      {
+        question: '“人车家全生态”战略对小米组织的根本要求，更接近下面哪一项？',
+        options: ['围绕单一硬件产品集中经营', '建立跨设备、跨场景协同的生态组织能力', '退出全球市场以降低管理难度', '把公司转为纯广告平台'],
+        answer: 'B',
+        explanation: 'BLM 的战略意图层面强调战略与组织匹配。人车家全生态要求的不只是多产品，而是多设备、多场景和多业务协同的生态组织能力。'
+      },
+      {
+        question: '当手机、AIoT、互联网服务和汽车业务并行发展时，小米在业务设计上最需要依赖哪种组织方式？',
+        options: ['按业务板块划分并由平台能力协同支持', '完全取消事业群，只保留财务部', '所有决策都由单一区域团队完成', '让每个业务都脱离集团独立运作'],
+        answer: 'A',
+        explanation: '多业务并行时，最合理的业务设计通常是按业务板块划分经营责任，同时通过研发、供应链、系统平台等能力实现跨业务协同。'
+      },
+      {
+        question: '小米研发人员占比高，最能说明其组织中枢更强调哪类关键能力建设？',
+        options: ['传统渠道批发能力', '技术研发与产品创新能力', '完全依赖外包生产能力', '单一地区门店管理能力'],
+        answer: 'B',
+        explanation: '较高的研发人员占比意味着公司将技术、操作系统、AI、智能硬件和自动驾驶等能力作为核心竞争基础，因此更强调技术研发与产品创新能力。'
+      },
+      {
+        question: '从组织支撑角度看，小米设置全球区域组织的核心价值最可能是什么？',
+        options: ['削弱本地渠道与市场运营', '让总部脱离国际市场管理', '提高不同国家市场的本地化运营能力', '减少生态业务之间的协同需求'],
+        answer: 'C',
+        explanation: '全球区域组织的主要意义在于适配不同国家和地区的渠道、品牌、售后和市场环境，从而提升国际化经营的本地响应能力。'
+      }
+    ];
+
+    function getOrgReflectionQuestionsByCompany() {
+      return appState.selectedCompany === 'xiaomi' ? XIAOMI_ORG_REFLECTION_QUESTIONS : SHITOU_ORG_REFLECTION_QUESTIONS;
+    }
+
+    function getBlmReflectionQuestionsByCompany() {
+      return appState.selectedCompany === 'xiaomi' ? XIAOMI_BLM_REFLECTION_QUESTIONS : SHITOU_BLM_REFLECTION_QUESTIONS;
+    }
+
+
+        const ROBOROCK_FUTURE_PROMPT_TEXT = `请严格结合以下信息进行推导：
+1. 当前组织结构图、当前组织结构相关信息提取结果、当前组织结构推导摘要；
+2. 当前组织结构反思中已经识别出的结构类型、优势、局限与可能问题；
+3. BLM分析中已经识别出的战略意图、业务设计、关键能力和组织支撑需求；
+4. BLM反思中已经形成的关于组织调整方向的判断。
+
+请特别注意：
+石头科技当前组织结构属于“产品事业部 + 职能中心”的矩阵化组织结构。未来组织设计必须建立在这一现状基础上，结合企业多产品线扩展、全球化经营、研发创新、供应链协同和品牌市场能力建设需求进行优化，不得脱离企业实际发展阶段随意虚构。
+
+请完成以下任务：
+一、判断石头科技未来更适合采用哪种组织结构类型，并说明原因；
+二、说明未来组织结构设计的总体思路，包括保留什么、强化什么、新增什么；
+三、输出未来组织结构图（文字版），要求层级清晰、自上而下展示；
+四、说明新结构与当前结构相比有哪些变化，以及这些变化分别解决什么问题；
+五、说明新结构如何支撑多产品线发展、国际化经营、技术创新、品牌拓展与经营协同；
+六、客观指出未来组织结构仍可能面临的管理挑战。
+
+输出要求：
+1. 必须体现“当前组织结构 → BLM分析 → BLM反思 → 未来组织结构设计”的推导逻辑；
+2. 必须给出清晰的组织结构层级，而不是只给抽象结论；
+3. 输出内容应适合直接用于组织结构模拟练习系统展示，语言清晰、结构完整、具有教学解释性。`;
+
+        const XIAOMI_FUTURE_PROMPT_TEXT = `以下是小米科技”AI辅助组织结构再设计提示词内容“，请放在其显示区，注意逐行显示，其余不变。
+
+请严格结合以下信息进行推导：
+1. 当前组织结构图、当前组织结构相关信息提取结果、当前组织结构推导摘要；
+2. 当前组织结构反思中已经识别出的结构类型、优势、局限与可能问题；
+3. BLM分析中已经识别出的战略意图、业务设计、关键能力和组织支撑需求；
+4. BLM反思中已经形成的关于组织调整方向的判断。
+
+请特别注意：
+小米科技当前组织结构属于“多事业部加平台生态型结构”。
+未来组织设计必须建立在这一现状基础上，结合企业“人车家全生态”战略、多业务板块协同、全球化运营、AI与操作系统平台建设、智能汽车业务拓展以及品牌与用户体验能力提升等要求进行优化，不得脱离企业实际发展阶段随意虚构。
+
+其中，BLM分析已经识别出以下关键方向：
+1. 战略意图：围绕“人车家全生态”战略推动智能手机、AIoT、互联网服务与智能电动汽车协同发展，并持续推进全球化布局；
+2. 客户与业务设计：以四大核心板块为主轴，叠加中国、欧洲、印度、东南亚、拉美、中东及非洲、北美等区域运营；
+3. 关键能力：研发平台、制造与供应链、全球品牌营销、澎湃OS与AI技术平台、国际化运营；
+4. 组织与治理支撑：董事会与专门委员会、高级管理团队、事业群负责人、区域组织与共享职能平台协同支撑全球经营。
+
+请完成以下任务：
+1. 判断小米科技未来更适合采用哪种组织结构类型，并说明原因；
+2. 说明未来组织结构设计的总体思路，包括保留什么、强化什么、新增什么；
+3. 输出未来组织结构图（文字版），要求层级清晰、自上而下展示；
+4. 说明新结构与当前结构相比有哪些变化，以及这些变化分别解决什么问题；
+5. 说明新结构如何支撑生态协同、全球化经营、技术平台建设、智能汽车拓展、品牌升级与经营协同；
+6. 客观指出未来组织结构仍可能面临的管理挑战。
+
+输出要求：
+1. 必须体现“当前组织结构 → BLM分析 → BLM反思 → 未来组织结构设计”的推导逻辑；
+2. 必须给出清晰的组织结构层级，而不是只给抽象结论；
+3. 输出内容应适合直接用于组织结构模拟练习系统展示，语言清晰、结构完整、具有教学解释性。`;
+
+        const XIAOMI_FUTURE_ORG_POINTS_TEXT = `小米集团未来全球组织架构图（示例）
+
+股东大会
+│
+└── 董事会
+    ├── 审核委员会
+    ├── 企业管治委员会
+    ├── 提名委员会
+    ├── 薪酬委员会
+    └── 战略与生态发展委员会（新增）
+
+        │
+        ▼
+   首席执行官（CEO）
+        │
+        ├── 总裁 / 合伙人团队
+        ├── 各事业群负责人
+        └── 职能管理中心
+
+────────────────────────────
+
+核心业务板块（Business Divisions）
+
+智能终端事业群
+├── 智能手机产品线
+├── IoT 及生活消费产品
+├── 智能家电
+├── 可穿戴设备
+└── XR 与未来设备（新增）
+
+互联网服务事业群
+├── 广告业务
+├── 内容服务
+└── 云与互联网服务
+
+智能汽车事业群
+├── 汽车研发中心
+├── 自动驾驶研发中心
+├── 智能座舱研发（新增）
+└── 汽车制造中心
+
+AI 平台与操作系统体系
+├── 澎湃OS研发中心
+├── AI大模型与算法中心
+├── AI应用平台（新增）
+└── 数据与算法平台（新增）
+
+────────────────────────────
+
+核心职能部门（Corporate Functions）
+
+├── 研发体系
+├── 销售与营销体系
+├── 生产制造体系
+├── 供应链与采购
+├── 全球品牌与用户体验中心（新增）
+├── 财务管理
+├── 行政与人力资源
+└── 法务与合规
+
+────────────────────────────
+
+全球区域组织（Regional Operations）
+
+├── 中国区
+├── 欧洲区
+├── 印度区
+├── 东南亚区
+├── 拉美区
+├── 中东及非洲区
+├── 俄罗斯与中亚区（新增）
+└── 北美区`;
+
+    
+function getFutureOrgChartUrlByCompany() {
+  if (appState.selectedCompany === 'xiaomi') {
+    return 'https://glmn-1311686407.cos.ap-chengdu.myqcloud.com/%E6%9C%AA%E6%9D%A5%E5%B0%8F%E7%B1%B3%E9%9B%86%E5%9B%A2%E5%85%A8%E7%90%83%E7%BB%84%E7%BB%87%E6%9E%B6%E6%9E%84%E5%9B%BE.png';
+  } else if (appState.selectedCompany === 'roborock') {
+    return 'https://glmn-1311686407.cos.ap-chengdu.myqcloud.com/%E7%9F%B3%E5%A4%B4%E7%A7%91%E6%8A%80%E6%9C%AA%E6%9D%A5%E5%9B%BE.png';
+  } else {
+    return '';
+  }
+}
+
+
+const ROBOROCK_FUTURE_ORG_POINTS_TEXT = `石头科技未来组织结构图（建议版）
+股东大会
+│
+├─ 董事会
+│
+├─ 监事会
+│
+└─ 公司管理层（CEO / 总裁）
+    │
+    ├─ 战略与投资中心
+    │   ├─ 战略规划
+    │   ├─ 新业务孵化
+    │   └─ 投资与合作
+    │
+    ├─ 技术平台中心
+    │   ├─ AI算法中心
+    │   ├─ 机器人技术研发中心
+    │   ├─ IoT平台中心
+    │   ├─ 硬件研发中心
+    │   └─ 产品测试中心
+    │
+    ├─ 产品事业群
+    │   ├─ 扫地机器人事业部
+    │   ├─ 洗地机事业部
+    │   ├─ 洗烘一体机事业部
+    │   └─ 新品类事业部
+    │
+    ├─ 供应链与制造中心
+    │   ├─ 采购管理
+    │   ├─ 制造中心
+    │   ├─ 供应链管理
+    │   └─ 质量管理
+    │
+    ├─ 品牌与市场中心
+    │   ├─ 品牌战略
+    │   ├─ 国内电商渠道
+    │   ├─ 线下渠道与体验店
+    │   ├─ 用户运营
+    │   └─ 用户服务
+    │
+    ├─ 国际业务中心
+    │   ├─ 北美大区
+    │   ├─ 欧洲大区
+    │   ├─ 亚太大区
+    │   └─ 新兴市场
+    │
+    └─ 集团职能平台
+        ├─ 财务中心
+        ├─ 人力资源中心
+        ├─ 法务与合规中心
+        ├─ 投资者关系中心
+        └─ 数字化与IT中心
+`;
+
+
+const ROBOROCK_FUTURE_REFLECTION_QUESTIONS = [
+  {
+    question: '石头科技在未来组织结构中新增“战略与投资中心”，这一调整最主要是为了应对什么问题？',
+    options: ['缺乏中长期战略统筹与资源配置能力', '产品研发效率不足', '生产成本过高', '区域市场人员不足'],
+    answer: 'A',
+    explanation: {
+      correct: '新增“战略与投资中心”本质是强化公司在多业务阶段的战略规划、资源配置和外部合作能力，解决原有组织偏重执行、缺乏中长期布局的问题。',
+      wrong: {
+        B: '研发效率问题应由技术体系优化解决，而非战略与投资中心。',
+        C: '成本问题主要通过供应链与制造优化解决。',
+        D: '区域人员问题属于执行层面，不是该部门设立的核心动因。'
+      }
+    }
+  },
+  {
+    question: '将“技术研发中心”升级为“技术平台中心”，最直接的组织价值是什么？',
+    options: ['减少所有研发人员数量', '完全外包核心技术研发', '提升不同产品事业群之间的技术复用与协同效率', '让每个产品独立开发技术'],
+    answer: 'C',
+    explanation: {
+      correct: '技术平台中心强调共性能力沉淀（如算法、硬件平台等），可以避免重复开发，提升多个产品事业群之间的协同与效率。',
+      wrong: {
+        A: '平台化的目标是提升效率，而不是简单裁员。',
+        B: '核心技术外包会削弱企业竞争力。',
+        D: '独立开发会导致重复建设，违背平台化初衷。'
+      }
+    }
+  },
+  {
+    question: '石头科技将“海外业务中心”升级为“国际业务中心”，并强化“品牌与市场中心”。为了使这一调整真正发挥作用，最关键的管理动作是什么？',
+    options: ['减少海外市场投入', '让各区域完全独立运营，不受总部约束', '取消区域组织，由总部统一执行', '建立总部与区域之间的品牌标准与本地化协同机制'],
+    answer: 'D',
+    explanation: {
+      correct: '国际化成功的关键在于“统一品牌+本地化执行”，需要明确总部与区域的分工和协同机制，否则容易出现品牌割裂和执行不一致。',
+      wrong: {
+        A: '减少投入与全球化战略相悖。',
+        B: '完全独立会导致品牌分裂和战略失控。',
+        C: '完全总部控制会降低市场响应速度。'
+      }
+    }
+  }
+];
+
+const XIAOMI_FUTURE_REFLECTION_QUESTIONS = [
+  {
+    question: '小米在董事会下新增“战略与生态发展委员会”，这一调整最主要是为了强化哪类能力？',
+    options: ['跨业务生态协同与长期战略决策能力', '日常业务执行管理', '区域销售执行能力', '单一产品研发能力'],
+    answer: 'A',
+    explanation: {
+      correct: '“人车家全生态”涉及多业务协同，需要在董事会层面强化顶层战略与生态统筹能力，而不仅是经营层协调。',
+      wrong: {
+        B: '日常执行属于管理层职责，不是董事会委员会的核心作用。',
+        C: '销售执行属于区域与业务部门职责。',
+        D: '研发属于业务与技术体系，不在该委员会核心范围。'
+      }
+    }
+  },
+  {
+    question: '小米将“AI × 操作系统研发体系”升级为“AI平台与操作系统体系”，并新增“AI应用平台”和“数据与算法平台”，这一变化最主要解决什么问题？',
+    options: ['生产制造效率低', '销售渠道不足', 'AI能力分散、数据与算法支撑不足、跨终端协同弱', '各区域市场差异过大'],
+    answer: 'C',
+    explanation: {
+      correct: '平台化的核心是沉淀共性能力（AI、数据、算法），解决原有体系中能力分散、重复建设以及生态协同不足的问题。',
+      wrong: {
+        A: '制造问题属于供应链与生产体系。',
+        B: '渠道问题属于市场与销售体系。',
+        D: '区域问题应通过区域组织优化解决。'
+      }
+    }
+  },
+  {
+    question: '小米将“智能电动汽车事业部”升级为“智能汽车事业群”，并新增“智能座舱研发”。为了使该结构真正支撑“人车家全生态”，最关键的组织配套动作是什么？',
+    options: ['将汽车业务并入手机事业群', '减少汽车研发投入', '让汽车业务完全独立运行，与其他业务隔离', '建立汽车业务与终端、AI平台之间的协同机制'],
+    answer: 'D',
+    explanation: {
+      correct: '智能汽车是生态的重要一环，必须与智能终端、AI平台和操作系统形成协同，尤其智能座舱是关键连接点。',
+      wrong: {
+        A: '简单并入会削弱汽车业务的独立发展能力。',
+        B: '减少投入与战略方向相悖。',
+        C: '隔离会破坏生态协同。'
+      }
+    }
+  }
+];
+
+function getFutureReflectionQuestionsByCompany() {
+  return appState.selectedCompany === 'xiaomi'
+    ? XIAOMI_FUTURE_REFLECTION_QUESTIONS
+    : (appState.selectedCompany === 'roborock'
+      ? ROBOROCK_FUTURE_REFLECTION_QUESTIONS
+      : []);
+}
+function getFutureOrgPointsTextByCompany() {
+      return appState.selectedCompany === 'roborock'
+        ? ROBOROCK_FUTURE_ORG_POINTS_TEXT
+        : (appState.selectedCompany === 'xiaomi'
+        ? XIAOMI_FUTURE_ORG_POINTS_TEXT
+        : '其余单位内容待补充。');
+    }
+
+    function buildFuturePromptHtmlByCompany() {
+      const title = appState.selectedCompany === 'roborock'
+        ? '石头科技“AI辅助组织结构再设计提示词”'
+        : (appState.selectedCompany === 'xiaomi'
+          ? '小米科技“AI辅助组织结构再设计提示词”'
+          : 'AI辅助组织结构再设计提示词');
+      const desc = appState.selectedCompany === 'roborock'
+        ? '以下内容已放入石头科技专属显示区，并按逐行方式展示。'
+        : (appState.selectedCompany === 'xiaomi'
+          ? '以下内容已放入小米科技专属显示区，并按逐行方式展示。'
+          : '当前公司暂未配置专属提示词内容。');
+      const text = appState.selectedCompany === 'roborock'
+        ? ROBOROCK_FUTURE_PROMPT_TEXT
+        : (appState.selectedCompany === 'xiaomi'
+          ? XIAOMI_FUTURE_PROMPT_TEXT
+          : '当前公司暂未配置专属提示词内容。');
+      const lineHtml = String(text).split('\n').map(line => {
+        if (!line.trim()) return '<div style="height:12px;"></div>';
+        return `<div>${escapeHtml(line)}</div>`;
+      }).join('');
+      return `
+        <div class="docx-render">
+          <div class="prompt-sheet">
+            <div class="prompt-sheet-title">${escapeHtml(title)}</div>
+            <div class="prompt-sheet-desc">${escapeHtml(desc)}</div>
+            <div class="prompt-sheet-body">${lineHtml}</div>
+          </div>
+        </div>`;
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+    }
+
+    function renderBulletList(items) {
+      if (!Array.isArray(items) || !items.length) return '<div>暂无信息</div>';
+      return `<ul>${items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+    }
+    function simulateBlmData() {
+      return {
+        strategy: { bullets: ['从单一爆款驱动转向多产品矩阵增长，提升产品组合的生命周期管理能力。', '继续推进国际化经营，在欧洲、北美与亚太形成区域经营责任制。', '通过技术创新与高端品牌定位，提升产品溢价与市场份额。', '在经营上兼顾收入增长、供应链韧性与用户体验闭环。'], implication: '组织上需要加强产品线经营责任、海外区域经营单元与总部战略协同。' },
+        business: { bullets: ['业务设计呈现“产品线 × 区域市场 × 共享平台”三层逻辑。', '核心产品线之间存在不同的产品经理、上市节奏与渠道打法。', '区域市场需要本地化渠道、售后与品牌传播能力。', '总部保留研发、供应链、财务、人力等共享职能，保证规模效率。'], implication: '适合从单纯职能制向混合型组织演进，兼顾效率与市场响应。' },
+        capability: { bullets: ['高比例研发人员意味着持续创新、算法与软硬一体化能力是竞争核心。', '全球供应链、质量与交付能力决定新品类扩张速度。', '跨区域协同、数据化运营与用户洞察能力将成为海外增长关键。', '品牌与上市管理能力需要从传播支持升级为增长引擎。'], implication: '未来组织需要明确能力平台归属，并提升跨部门协同接口。' },
+        org: { bullets: ['经营层下可形成产品研发平台、供应链平台、中国市场、海外区域、品牌增长、共享支持等管理单元。', '若产品线持续增多，可逐步强化产品线负责人或轻量事业部机制。', '为避免区域与职能冲突，应建立经营例会、产品上市机制与跨区域资源协调机制。', '人才与绩效体系应同时覆盖技术深耕、区域增长与共享平台效率。'], implication: '组织设计重点不是层级增加，而是明确产品线、区域与平台的责权边界。' },
+        summary: `战略意图：多产品矩阵增长 + 国际化扩张 + 品牌升级。
+业务设计：产品线、区域市场与共享平台并行。
+关键能力：研发创新、全球供应链、跨区域协同、增长运营。
+组织支撑：总部平台保留，区域与产品责任增强，形成轻量混合制。`
+      };
+    }
+
+    function simulateXiaomiBlmData() {
+      return {
+        strategy: {
+          bullets: ['从年报战略章节、管理层讨论中提取未来增长方向、生态战略与全球化布局。', '围绕“人车家全生态”战略，推动智能手机、AIoT、互联网服务与智能电动汽车的生态协同发展。', '在消费电子基础上拓展智能电动汽车业务，形成新的增长极。', '持续推进 AI、操作系统与智能设备协同升级，通过澎湃OS等平台提升生态连接能力。', '在全球市场维持增长，重点布局 中国、欧洲、印度、东南亚、拉美、中东及非洲、北美等区域市场。'],
+          implication: '组织需要从单一产品驱动向 多业务生态驱动转型，同时加强 事业群管理与全球区域经营协同，以支持多产品线和跨区域增长。'
+        },
+        business: {
+          bullets: ['识别产品线结构、区域市场布局与业务单元划分方式。', '业务体系围绕 四大核心板块： 手机 × AIoT业务、IoT与生活消费产品、互联网服务、智能电动汽车业务。', '不同产品线对应不同产品组合，例如智能手机、IoT设备、智能家电、互联网服务与汽车产品。', '全球市场按区域布局，包括 中国、欧洲、印度、东南亚、拉美、中东及非洲、北美。', '区域市场承担销售、市场推广、渠道管理与售后服务等本地化运营职能。'],
+          implication: '业务结构呈现 产品线 × 区域市场的双维度特征，需要在产品事业群与区域组织之间建立协同机制，以提升市场响应速度。'
+        },
+        capability: {
+          bullets: ['聚焦支撑业务增长的核心能力体系。', '研发能力：研发人员约21,190人，持续投入AI、IoT、5G、操作系统与自动驾驶等领域。', '制造与供应链能力：建立智能手机与汽车制造体系，并通过供应链管理保障产品交付。', '品牌与市场能力：销售与营销人员约15,540人，支撑全球品牌推广与渠道建设。', '技术平台能力：通过澎湃OS及AI技术提升设备互联与生态协同能力。', '国际化运营能力：通过区域组织开展本地销售、市场运营与渠道管理。'],
+          implication: '未来组织需要强化 研发平台、供应链平台与全球营销能力，并建立跨区域与跨业务协同机制，以支撑生态化产品体系。'
+        },
+        org: {
+          bullets: ['识别组织结构、治理体系与职能平台。', '公司治理由 董事会及其下设委员会构成，包括审核委员会、企业管治委员会、提名委员会与薪酬委员会。', '管理层结构包括 CEO、高级管理团队、事业群负责人及职能部门负责人。', '集团设有核心职能体系，包括 研发、销售与营销、生产制造、供应链、财务、行政与法务等部门。', '公司建立 ESG治理体系，形成董事会、企业管治委员会、可持续发展委员会及ESG工作组的治理链条。', '全球运营通过 区域组织体系开展，包括中国、欧洲、印度、东南亚、拉美、中东及非洲、北美等区域。'],
+          implication: '组织结构需要在 事业群、区域组织与职能平台之间明确权责边界，通过共享职能平台与区域运营体系支持全球化经营。'
+        },
+        summary: `战略意图：围绕“人车家全生态”战略推动智能手机、AIoT、互联网服务与智能电动汽车协同发展，并持续推进全球化布局。
+客户与业务设计：以四大核心板块为主轴，叠加中国、欧洲、印度、东南亚、拉美、中东及非洲、北美等区域运营。
+关键能力：研发平台、制造与供应链、全球品牌营销、澎湃OS与AI技术平台、国际化运营。
+组织与治理支撑：董事会与专门委员会、高级管理团队、事业群负责人、区域组织与共享职能平台协同支撑全球经营。`
+      };
+    }
+
+    function getBlmDataByCompany() {
+      if (appState.selectedCompany === 'xiaomi') return simulateXiaomiBlmData();
+      return simulateBlmData();
+    }
+
+    function renderBlmData(data) {
+      const mapping = { blmStrategy: data.strategy, blmBusiness: data.business, blmCapability: data.capability, blmOrg: data.org };
+      Object.entries(mapping).forEach(([id, module]) => {
+        const node = document.getElementById(id);
+        node.innerHTML = `${renderBulletList(module.bullets)}<div style="margin-top:10px; color:#bfeeff;"><strong>组织含义：</strong>${escapeHtml(module.implication)}</div>`;
+      });
+      document.getElementById('blmSummaryText').value = data.summary;
+    }
+
+    function renderQuestions(containerId, questions, prefix) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      questions.forEach((q, i) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'question';
+        wrapper.innerHTML = `
+          <div class="question-title">${i + 1}. ${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, idx) => `
+              <label class="option">
+                <input type="radio" name="${prefix}_${i}" value="${idx}" />
+                <span>${opt}</span>
+              </label>`).join('')}
+          </div>`;
+        container.appendChild(wrapper);
+      });
+    }
+
+    function getQuestionAnswerIndex(q) {
+      return typeof q.answer === 'number'
+        ? q.answer
+        : Math.max(0, 'ABCD'.indexOf(String(q.answer).trim().charAt(0).toUpperCase()));
+    }
+
+    function renderBlmQuestions(containerId, questions, prefix) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      const answeredSet = new Set();
+      questions.forEach((q, i) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'question';
+        wrapper.innerHTML = `
+          <div class="question-title">${i + 1}. ${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, idx) => `
+              <label class="option">
+                <input type="radio" name="${prefix}_${i}" value="${idx}" />
+                <span>${opt}</span>
+              </label>`).join('')}
+          </div>
+          <div class="row" style="justify-content:flex-start; margin-top:12px;">
+            <button class="neon-btn blm-confirm-btn" type="button" data-question-index="${i}">确定</button>
+          </div>
+          <div id="${prefix}_${i}_feedback" class="warning" style="margin-top:12px; display:none;"></div>`;
+        container.appendChild(wrapper);
+      });
+      container.querySelectorAll('.blm-confirm-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const i = Number(btn.dataset.questionIndex);
+          const q = questions[i];
+          const selected = container.querySelector(`input[name="${prefix}_${i}"]:checked`);
+          const feedback = document.getElementById(`${prefix}_${i}_feedback`);
+          if (!feedback) return;
+          const answerIndex = getQuestionAnswerIndex(q);
+          if (!selected) {
+            feedback.className = 'warning';
+            feedback.style.display = 'block';
+            feedback.innerHTML = '请先选择一个答案，再点击“确定”。';
+            return;
+          }
+          const selectedIndex = Number(selected.value);
+          const isCorrect = selectedIndex === answerIndex;
+          feedback.className = isCorrect ? 'success' : 'danger';
+          feedback.style.display = 'block';
+          feedback.innerHTML = `
+            <div><strong>${isCorrect ? '回答正确' : '回答错误'}</strong></div>
+            <div style="margin-top:6px;"><strong>正确答案：</strong>${String.fromCharCode(65 + answerIndex)}. ${escapeHtml(q.options[answerIndex] || '')}</div>
+            <div style="margin-top:6px; line-height:1.8;"><strong>解析：</strong>${escapeHtml(q.explanation || '')}</div>`;
+          answeredSet.add(i);
+          if (prefix === 'blmQ') {
+            setQuizAnswerProgress('blm', 'reflect', answeredSet.size, questions.length);
+          }
+        });
+      });
+      if (prefix === 'blmQ') updateModuleConfirmButton('blm');
+    }
+
+    function gradeQuestions(questions, resultBoxId, prefix) {
+      let score = 0;
+      const details = [];
+      questions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="${prefix}_${i}"]:checked`);
+        const val = selected ? Number(selected.value) : -1;
+        const normalizedAnswer = typeof q.answer === 'number'
+          ? q.answer
+          : Math.max(0, 'ABCD'.indexOf(String(q.answer).trim().charAt(0).toUpperCase()));
+        const correct = val === normalizedAnswer;
+        if (correct) score++;
+        details.push(`${i + 1}. ${correct ? '正确' : '错误'}｜标准答案：${String.fromCharCode(65 + normalizedAnswer)}｜解析：${q.explanation}`);
+      });
+      const box = document.getElementById(resultBoxId);
+      box.className = score === questions.length ? 'success' : (score === 0 ? 'danger' : 'warning');
+      box.innerHTML = `<div class="result-row"><div class="score-box"><div class="score-title">得分</div><div class="score-value">${score} / ${questions.length}</div></div><div class="score-box"><div class="score-title">判题结果</div><div class="score-value">${score === questions.length ? '全部正确' : '已生成解析'}</div></div></div><div style="margin-top:12px; line-height:1.8;">${details.join('<br/>')}</div>`;
+    }
+    const blmLearningText = `BLM（Business Leadership Model）可用于分析企业在战略与组织之间如何形成有效匹配，是判断“为什么要做组织变革”的经典框架。
+
+在课堂演示中，可重点从四个维度理解：
+1. 战略意图与增长主题：企业未来 2-3 年想实现什么增长目标。
+2. 客户与业务设计：企业服务谁、依靠什么业务单元与区域组织去承接增长。
+3. 关键能力建设：研发、供应链、品牌、数字化、国际化等能力是否足以支撑战略。
+4. 组织与治理支撑：现有组织结构、协同机制、绩效与人才体系是否匹配战略要求。
+
+如果企业战略扩张了，但组织仍停留在旧结构，就会出现：
+- 职责交叉
+- 决策链条过长
+- 区域与产品协同不足
+- 能力平台无法支撑新业务
+
+因此，BLM分析的核心价值在于：
+不是只看企业“现在怎么组织”，而是判断“为了实现战略，组织应该如何变”。`;
+
+const blmPromptText = `请基于所提供企业年报，围绕 BLM（Business Leadership Model）框架，提取可用于判断组织变革依据的关键信息。提取结果需准确对应文档内容，无遗漏、无额外添加。
+
+请重点提取以下内容：
+1. 战略意图与增长主题：包括未来增长方向、战略重点、全球化布局、产品升级方向；
+2. 客户与业务设计：包括客户群体、核心业务板块、产品线、区域市场布局、业务单元划分；
+3. 关键能力建设：包括研发、供应链、制造、品牌、数字化、国际化等关键能力；
+4. 组织与治理支撑：包括治理层设置、高管分工、组织架构、共享职能平台、人才与绩效支持机制；
+5. 组织变革信号：包括新增业务、跨区域经营、多事业部扩张、技术平台化、全球化经营等可作为组织调整依据的信息。
+
+请按“战略—业务—能力—组织”逻辑输出，便于后续进行组织变革依据分析。`;
+
+function getBlmSummaryTextByCompany() {
+  return getBlmDataByCompany().summary;
+}
+
+function renderBlmSummaryView() {
+  const textarea = document.getElementById('blmSummaryText');
+  if (!textarea) return;
+  textarea.value = getBlmSummaryTextByCompany();
+}
+
+function renderBlmReflectView() {
+  const container = document.getElementById('blmReflectContent');
+  if (!container) return;
+  appState.blmQuestions = getBlmReflectionQuestionsByCompany().map(item => ({ ...item }));
+  container.innerHTML = `
+    <div class="notice" style="margin-bottom:12px;">当前题库为 <strong>${escapeHtml(appState.company.name)}</strong> 的 <strong>BLM反思题</strong>，与“组织结构反思”题库分开配置，避免内容混淆。</div>
+    <div class="section-sub" style="margin-bottom:12px;">每题作答后点击该题下方“确定”按钮，即可查看是否答对、正确答案及解析。</div>
+    <div class="qa-list" id="blmQuestionList"></div>
+    <div class="row" style="justify-content:flex-start; margin-top: 14px; flex-wrap:wrap;">
+      <button class="ghost-btn" id="demoBlmQuestionBtn">重新载入本公司BLM题</button>
+    </div>
+  `;
+  setQuizAnswerProgress('blm', 'reflect', 0, appState.blmQuestions.length);
+  renderBlmQuestions('blmQuestionList', appState.blmQuestions, 'blmQ');
+  updateModuleConfirmButton('blm');
+  document.getElementById('demoBlmQuestionBtn').addEventListener('click', () => {
+    appState.blmQuestions = getBlmReflectionQuestionsByCompany().map(item => ({ ...item }));
+    setQuizAnswerProgress('blm', 'reflect', 0, appState.blmQuestions.length);
+    renderBlmQuestions('blmQuestionList', appState.blmQuestions, 'blmQ');
+    updateModuleConfirmButton('blm');
+  });
+}
+
+function renderFutureView(view) {
+  appState.futureView = view;
+  const titleMap = {
+    prompt: 'AI辅助组织结构再设计提示词',
+    points: '未来组织结构图要点',
+    chart: '生成新的组织结构图',
+    reflect: '反思新的组织结构'
+  };
+  const subMap = {
+    prompt: '四个按钮共用该模块框，当前仅完成布局。',
+    points: '按示例样式逐行展示未来组织结构图要点。',
+    chart: '后续可直接替换为你提供的未来组织结构图文件或图片链接。',
+    reflect: '围绕未来组织结构变化点进行单选反思，并支持即时判题与解析。'
+  };
+  document.querySelectorAll('[data-future-view]').forEach(btn => btn.classList.toggle('active', btn.dataset.futureView === view));
+  const titleNode = document.getElementById('futureCanvasTitle');
+  const subNode = document.getElementById('futureCanvasSub');
+  const body = document.getElementById('futureCanvasBody');
+  if (!titleNode || !subNode || !body) return;
+  titleNode.textContent = titleMap[view];
+  subNode.textContent = subMap[view];
+  if (view === 'prompt') {
+    body.innerHTML = '<div class="ai-stream-shell"><div class="docx-render" id="futureStreamContainer">正在准备内容…</div></div>';
+    const container = document.getElementById('futureStreamContainer');
+    const html = buildFuturePromptHtmlByCompany();
+    animateHtmlByBlocks(container, html, 20);
+  } else if (view === 'points') {
+    body.innerHTML = `
+      <div class="resource-box">
+        <div class="field-label">未来组织结构图要点</div>
+        <div class="structured-output-text future-points-text" style="min-height:380px; white-space:pre-wrap; font-family:'Courier New', monospace; line-height:1.75; font-size:14px;">${escapeHtml(getFutureOrgPointsTextByCompany())}</div>
+      </div>`;
+  } else if (view === 'chart') {
+    const url = getFutureOrgChartUrlByCompany();
+    body.innerHTML = `
+      <div class="resource-box">
+        <div class="field-label">生成新的组织结构图</div>
+        ${url ? `<img src="${url}" style="max-width:100%;border-radius:8px;">` : `<div class="section-sub">暂无该单位组织结构图</div>`}
+      </div>`;
+  } else {
+    body.innerHTML = buildFutureReflectionExamHtml();
+    bindFutureReflectionExamInteractions();
+  }
+  updateModuleConfirmButton('future');
+}
+
+function setBlmView(view){
+  appState.blmView = view;
+  document.querySelectorAll('[data-blm-view]').forEach(btn=>btn.classList.toggle('active', btn.dataset.blmView===view));
+  const map = { learn:'blmLearnPanel', prompt:'blmPromptPanel', analysis:'blmAnalysisPanel', summary:'blmSummaryPanel', reflect:'blmReflectPanel' };
+  Object.entries(map).forEach(([k,id])=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.classList.toggle('hidden', k!==view);
+    el.classList.toggle('active', k===view);
+  });
+  if (view === 'summary') renderBlmSummaryView();
+  if (view === 'reflect') renderBlmReflectView();
+  updateModuleConfirmButton('blm');
+}
+
+document.getElementById('blmLearnContent').textContent = blmLearningText;
+document.getElementById('blmPromptContent').textContent = blmPromptText;
+document.getElementById('btnBlmLearn').addEventListener('click', () => setBlmView('learn'));
+document.getElementById('btnBlmPrompt').addEventListener('click', () => setBlmView('prompt'));
+document.getElementById('btnBlmSummary').addEventListener('click', () => setBlmView('summary'));
+document.getElementById('btnBlmReflect').addEventListener('click', () => setBlmView('reflect'));
+document.getElementById('extractBlmBtn').addEventListener('click', () => {
+  setBlmView('analysis');
+  renderBlmData(getBlmDataByCompany());
+});
+
+document.querySelectorAll('[data-future-view]').forEach(btn => btn.addEventListener('click', () => renderFutureView(btn.dataset.futureView)));
+
+
+    async function ensureDocxPreviewLoaded() {
+      if (window.docx && window.docx.renderAsync) return window.docx;
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/docx-preview@0.3.6/dist/docx-preview.min.js';
+        script.onload = () => resolve(window.docx);
+        script.onerror = () => reject(new Error('docx-preview 加载失败'));
+        document.head.appendChild(script);
+      });
+    }
+
+    async function ensureMammothLoaded() {
+      if (window.mammoth) return window.mammoth;
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js';
+        script.onload = () => resolve(window.mammoth);
+        script.onerror = () => reject(new Error('mammoth 加载失败'));
+        document.head.appendChild(script);
+      });
+    }
+
+    function buildCurrentPromptHtml() {
+      return `
+        <div class="docx-render">
+          <div class="prompt-sheet">
+            <div class="prompt-sheet-title">AI提示词</div>
+            <div class="prompt-sheet-desc">以下提示词与“AI辅助提取组织结构相关信息 / 组织结构推导摘要 / 生成组织结构图 / 组织结构反思”共用同一个模块框展示。</div>
+            <div class="prompt-sheet-body">${escapeHtml(appState.selectedCompany === 'xiaomi' ? XIAOMI_CURRENT_PROMPT_TEXT : CURRENT_ORG_PROMPT_TEXT)}</div>
+          </div>
+        </div>`;
+    }
+
+    function buildUploadedModeInfoHtml() {
+      const company = appState.company.name !== '未识别' ? appState.company.name : '待AI识别企业';
+      return `
+        <div class="docx-render">
+          <h2>当前组织结构相关信息提取（上传年报PDF模式）</h2>
+          <p><strong>分析对象：</strong>${escapeHtml(company)}</p>
+          <p><strong>资料来源：</strong>${escapeHtml(appState.annualFileName || '用户上传年报PDF')}</p>
+          <p><strong>程序给AI的模板要求：</strong>必须按系统默认 DOCX 模板的层级、标题、段落与强调方式输出。</p>
+          <h3>一、AI提取关注点</h3>
+          <p>1. 从年报高管简介中提取董事长、总经理、核心副总裁、财务负责人等岗位信息。</p>
+          <p>2. 从主营业务、产品板块、区域市场章节中识别产品线与区域经营单元。</p>
+          <p>3. 从员工分类人数、研发投入、供应链与制造描述中提炼组织重心。</p>
+          <p>4. 仅允许依据年报材料进行推导，不得脱离原文自行扩展。</p>
+          <h3>二、程序内置提示词（明确告诉AI）</h3>
+          <p>${escapeHtml(uploadAiTemplateInstruction).replace(/\n/g, '<br/>')}</p>
+          <h3>三、输出格式要求</h3>
+          <p>请按照系统默认模板的标题层级、粗体子标题、段落分组、要点清单与总结结构进行展示；当真实系统接入 PDF 解析与模型调用后，此区域应替换为 AI 依据用户年报生成的正式内容。</p>
+        </div>`;
+    }
+
+    function buildUploadedModeSummaryHtml() {
+      const company = appState.company.name !== '未识别' ? appState.company.name : '待AI识别企业';
+      return `
+        <div class="docx-render">
+          <h2>组织结构推导摘要（上传年报PDF模式）</h2>
+          <p><strong>企业：</strong>${escapeHtml(company)}</p>
+          <p><strong>摘要模板要求：</strong>必须尽量仿照系统默认《组织结构推导摘要》DOCX 模板的标题、粗体小节、分点总结与结论方式。</p>
+          <h3>一、推导逻辑</h3>
+          <p>以“高管分工 → 产品线 → 区域市场 → 员工结构 → 能力平台”作为主线，逐步推导当前组织结构假设。</p>
+          <h3>二、程序给AI的明确说明</h3>
+          <p>${escapeHtml(uploadAiTemplateInstruction).replace(/\n/g, '<br/>')}</p>
+          <h3>三、交付要求</h3>
+          <p>请按系统默认摘要模板的格式输出摘要正文、关键判断、推导依据和组织结论。当前 HTML 原型先展示模板要求说明，后续接入真实 AI 后可直接替换为模型结果。</p>
+        </div>`;
+    }
+
+    function buildDefaultDocxEmbedHtml(url, title) {
+      const officeUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(url);
+      return `
+        <div class="docx-embed-shell">
+          <div class="docx-embed-toolbar">
+            <div>
+              <strong>${escapeHtml(title)}</strong>
+              <div class="section-sub" style="margin-top:6px;">默认模式下直接嵌入链接中的 Word 模板内容，不再展示本地回退文案。</div>
+            </div>
+            <a class="small-btn" href="${url}" target="_blank" rel="noopener noreferrer">新窗口打开原文档</a>
+          </div>
+          <iframe class="docx-embed-frame" src="${officeUrl}" title="${escapeHtml(title)}"></iframe>
+        </div>`;
+    }
+
+    function getReflectionAnswerIndex(item) {
+      const letter = String(item.answer || '').trim().charAt(0).toUpperCase();
+      const idx = letter.charCodeAt(0) - 65;
+      return idx >= 0 && idx < item.options.length ? idx : 0;
+    }
+
+    function buildReflectionExamHtml() {
+      return `
+        <div>
+          <div class="exam-intro">请按考试模式作答。每题的正确答案与解析默认隐藏。选择答案后点击“确定”，系统将即时判断：答对会提示“你的理解很正确”，并展开解析；答错会提醒你结合课程内容再思考一下。</div>
+          <div class="reflection-grid">
+            ${getOrgReflectionQuestionsByCompany().map((item, idx) => `
+              <div class="exam-card" data-reflection-index="${idx}">
+                <h3>${idx + 1}. ${escapeHtml(item.question)}</h3>
+                <div class="exam-options">
+                  ${item.options.map((opt, i) => `
+                    <label class="exam-option">
+                      <input type="radio" name="reflection_${idx}" value="${i}" />
+                      <span><strong>${String.fromCharCode(65 + i)}.</strong> ${escapeHtml(opt)}</span>
+                    </label>
+                  `).join('')}
+                </div>
+                <div class="exam-actions">
+                  <button class="small-btn reflection-submit-btn" data-reflection-submit="${idx}">确定</button>
+                </div>
+                <div class="exam-feedback hidden" id="reflectionFeedback_${idx}"></div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+
+    function bindReflectionExamInteractions() {
+      const totalQuestions = getOrgReflectionQuestionsByCompany().length;
+      setQuizAnswerProgress('current', 'reflect', 0, totalQuestions);
+      const answeredSet = new Set();
+      document.querySelectorAll('.reflection-submit-btn').forEach(btn => {
+        btn.onclick = () => {
+          const idx = Number(btn.dataset.reflectionSubmit);
+          const question = getOrgReflectionQuestionsByCompany()[idx];
+          const selected = document.querySelector(`input[name="reflection_${idx}"]:checked`);
+          if (!selected) {
+            alert('请先选择一个答案。');
+            return;
+          }
+          const feedback = document.getElementById(`reflectionFeedback_${idx}`);
+          const answerIndex = getReflectionAnswerIndex(question);
+          const isCorrect = Number(selected.value) === answerIndex;
+          feedback.classList.remove('hidden', 'correct', 'wrong');
+          feedback.classList.add(isCorrect ? 'correct' : 'wrong');
+          feedback.innerHTML = `
+            <strong>${isCorrect ? '你的理解很正确。' : '这道题答错了。'}</strong>
+            <div style="margin-top:8px;"><strong>正确答案：</strong>${String.fromCharCode(65 + answerIndex)}. ${escapeHtml(question.options[answerIndex] || '')}</div>
+            <div style="margin-top:8px;"><strong>解析：</strong>${escapeHtml(question.explanation)}</div>`;
+          answeredSet.add(idx);
+          setQuizAnswerProgress('current', 'reflect', answeredSet.size, totalQuestions);
+        };
+      });
+      updateModuleConfirmButton('current');
+    }
+
+
+
+    function getDetailedExplanationHtml(question, selectedIndex, answerIndex) {
+      const explanation = question && question.explanation;
+      if (explanation && typeof explanation === 'object') {
+        const selectedLetter = String.fromCharCode(65 + selectedIndex);
+        const wrongMap = explanation.wrong || {};
+        const wrongText = selectedIndex === answerIndex ? '' : (wrongMap[selectedLetter] || '该选项没有抓住本次组织结构调整要解决的核心问题。');
+        return `
+          <div style="margin-top:8px;"><strong>解析：</strong>${escapeHtml(explanation.correct || '')}</div>
+          ${selectedIndex === answerIndex ? '' : `<div style="margin-top:8px;"><strong>你所选项的问题：</strong>${escapeHtml(wrongText)}</div>`}`;
+      }
+      return `<div style="margin-top:8px;"><strong>解析：</strong>${escapeHtml(explanation || '')}</div>`;
+    }
+
+    function buildFutureReflectionExamHtml() {
+      const questions = getFutureReflectionQuestionsByCompany();
+      const companyName = appState.company.name || '当前公司';
+      if (!questions.length) {
+        return `
+          <div class="resource-box">
+            <div class="field-label">反思新的组织结构</div>
+            <div class="section-sub">当前公司暂未配置“未来组织结构反思题”。</div>
+          </div>`;
+      }
+      return `
+        <div>
+          <div class="exam-intro">当前题库为 <strong>${escapeHtml(companyName)}</strong> 的<strong>未来组织结构反思题</strong>。题目紧扣未来结构中的关键变化点，重点训练“为什么要这样变化、这样变化的组织收益、如何推动变化落地”。请逐题作答，并在每题选择后点击“确定”查看判断结果与解析。</div>
+          <div class="reflection-grid">
+            ${questions.map((item, idx) => `
+              <div class="exam-card" data-future-reflection-index="${idx}">
+                <h3>${idx + 1}. ${escapeHtml(item.question)}</h3>
+                <div class="exam-options">
+                  ${item.options.map((opt, i) => `
+                    <label class="exam-option">
+                      <input type="radio" name="future_reflection_${idx}" value="${i}" />
+                      <span><strong>${String.fromCharCode(65 + i)}.</strong> ${escapeHtml(opt)}</span>
+                    </label>
+                  `).join('')}
+                </div>
+                <div class="exam-actions">
+                  <button class="small-btn future-reflection-submit-btn" data-future-reflection-submit="${idx}">确定</button>
+                </div>
+                <div class="exam-feedback hidden" id="futureReflectionFeedback_${idx}"></div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+
+    function bindFutureReflectionExamInteractions() {
+      const questions = getFutureReflectionQuestionsByCompany();
+      const totalQuestions = questions.length;
+      setQuizAnswerProgress('future', 'reflect', 0, totalQuestions);
+      const answeredSet = new Set();
+      document.querySelectorAll('.future-reflection-submit-btn').forEach(btn => {
+        btn.onclick = () => {
+          const idx = Number(btn.dataset.futureReflectionSubmit);
+          const question = questions[idx];
+          const selected = document.querySelector(`input[name="future_reflection_${idx}"]:checked`);
+          if (!selected) {
+            alert('请先选择一个答案。');
+            return;
+          }
+          const feedback = document.getElementById(`futureReflectionFeedback_${idx}`);
+          const answerIndex = getReflectionAnswerIndex(question);
+          const selectedIndex = Number(selected.value);
+          const isCorrect = selectedIndex === answerIndex;
+          feedback.classList.remove('hidden', 'correct', 'wrong');
+          feedback.classList.add(isCorrect ? 'correct' : 'wrong');
+          feedback.innerHTML = `
+            <strong>${isCorrect ? '你的理解很正确。' : '这道题答错了。'}</strong>
+            <div style="margin-top:8px;"><strong>正确答案：</strong>${String.fromCharCode(65 + answerIndex)}. ${escapeHtml(question.options[answerIndex] || '')}</div>
+            ${getDetailedExplanationHtml(question, selectedIndex, answerIndex)}`;
+          answeredSet.add(idx);
+          setQuizAnswerProgress('future', 'reflect', answeredSet.size, totalQuestions);
+        };
+      });
+      updateModuleConfirmButton('future');
+    }
+
+
+    function setCurrentCopyText(text) {
+      appState.currentCopyText = String(text || '').replace(/ /g, ' ').trim();
+    }
+
+    function getPlainTextFromHtml(html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
+      return String(doc.body.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+    }
+
+    function setCurrentTools(mode = '') {
+      const tools = document.getElementById('currentCanvasTools');
+      if (!tools) return;
+      if (!mode) {
+        tools.innerHTML = '';
+        return;
+      }
+      tools.innerHTML = `
+        <button class="small-btn" id="copyCurrentContentBtn">复制内容</button>
+        <span class="notice" id="copyCurrentContentStatus" style="padding:8px 12px; margin:0; min-height:auto;">可复制当前模块展示内容</span>
+      `;
+      const btn = document.getElementById('copyCurrentContentBtn');
+      const status = document.getElementById('copyCurrentContentStatus');
+      btn?.addEventListener('click', async () => {
+        const value = appState.currentCopyText || '';
+        if (!value.trim()) {
+          status.textContent = '当前内容尚未准备完成，暂时无法复制。';
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(value);
+          status.textContent = '已复制当前内容。';
+        } catch (error) {
+          const textarea = document.createElement('textarea');
+          textarea.value = value;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          textarea.remove();
+          status.textContent = '已复制当前内容。';
+        }
+        setTimeout(() => {
+          if (document.getElementById('copyCurrentContentStatus') === status) {
+            status.textContent = '可复制当前模块展示内容';
+          }
+        }, 1800);
+      });
+    }
+
+    async function typeNodeByCharacters(sourceNode, targetParent, speed, container, cursor, token) {
+      if (token !== appState.currentRenderToken) return;
+      if (sourceNode.nodeType === Node.TEXT_NODE) {
+        const text = sourceNode.textContent || '';
+        const textNode = document.createTextNode('');
+        targetParent.appendChild(textNode);
+        for (const char of text) {
+          if (token !== appState.currentRenderToken) return;
+          textNode.textContent += char;
+          if (cursor && cursor.parentNode) cursor.parentNode.appendChild(cursor);
+          container.scrollTop = container.scrollHeight;
+          await new Promise(r => setTimeout(r, speed));
+        }
+        return;
+      }
+      if (sourceNode.nodeType !== Node.ELEMENT_NODE) return;
+      const element = document.createElement(sourceNode.tagName.toLowerCase());
+      Array.from(sourceNode.attributes || []).forEach(attr => element.setAttribute(attr.name, attr.value));
+      targetParent.appendChild(element);
+      for (const child of Array.from(sourceNode.childNodes)) {
+        await typeNodeByCharacters(child, element, speed, container, cursor, token);
+      }
+    }
+
+    async function animateHtmlByBlocks(container, html, speed = 28) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
+      const blocks = Array.from(doc.body.firstElementChild ? doc.body.firstElementChild.childNodes : []);
+      container.innerHTML = '<div class="docx-render"></div>';
+      const wrap = container.firstElementChild;
+      const token = ++appState.currentRenderToken;
+      const cursor = document.createElement('span');
+      cursor.className = 'ai-cursor';
+      wrap.appendChild(cursor);
+      for (const node of blocks) {
+        if (token !== appState.currentRenderToken) return;
+        await typeNodeByCharacters(node, wrap, speed, container, cursor, token);
+        if (token !== appState.currentRenderToken) return;
+        container.scrollTop = container.scrollHeight;
+        await new Promise(r => setTimeout(r, 120));
+      }
+      if (!wrap.textContent.trim()) {
+        wrap.innerHTML = html;
+      }
+      cursor.remove();
+    }
+
+    function convertDocxTextToHtml(text, title = '默认模板文档') {
+      const lines = String(text || '').replace(/\r/g, '').split('\n').map(line => line.trim()).filter(Boolean);
+      const htmlBlocks = [`<h2>${escapeHtml(title)}</h2>`];
+      let listBuffer = [];
+
+      const flushList = () => {
+        if (!listBuffer.length) return;
+        htmlBlocks.push(`<ul>${listBuffer.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`);
+        listBuffer = [];
+      };
+
+      lines.forEach((line, index) => {
+        const isHeading = /^(第[一二三四五六七八九十]+[章节部分]|[一二三四五六七八九十]+[、.]|\d+[、.]|附录|总结|结论)/.test(line) ||
+          (line.length <= 24 && /信息|情况|摘要|结构|团队|部门|人员|子公司|委员会|核心/.test(line));
+        const isList = /^[（(]?\d+[)）.、]\s*|^[-•·]\s*/.test(line);
+        if (isHeading) {
+          flushList();
+          htmlBlocks.push(index === 0 ? `<h2>${escapeHtml(line)}</h2>` : `<h3>${escapeHtml(line)}</h3>`);
+        } else if (isList) {
+          listBuffer.push(line.replace(/^[（(]?\d+[)）.、]\s*/, '').replace(/^[-•·]\s*/, ''));
+        } else {
+          flushList();
+          htmlBlocks.push(`<p>${escapeHtml(line)}</p>`);
+        }
+      });
+      flushList();
+      return `<div class="docx-render">${htmlBlocks.join('')}</div>`;
+    }
+
+    async function renderDocxWithTyping(container, url, title = '默认模板文档') {
+      const progressSteps = ['正在连接文档源…', '正在读取 Word 内容…', '正在解析段落结构…', '正在生成逐字展示…'];
+      container.innerHTML = `<div class="docx-render">${progressSteps[0]}<span class="ai-cursor"></span></div>`;
+      try {
+        const mammoth = await ensureMammothLoaded();
+        for (let i = 1; i < progressSteps.length; i++) {
+          await new Promise(r => setTimeout(r, 240));
+          container.innerHTML = `<div class="docx-render">${progressSteps[i]}<span class="ai-cursor"></span></div>`;
+        }
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('文档下载失败');
+        const arrayBuffer = await response.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        const cleanText = String(result.value || '').replace(/\n{3,}/g, '\n\n').trim();
+        if (!cleanText) throw new Error('文档无可提取文本');
+        const html = convertDocxTextToHtml(cleanText, title);
+        setCurrentCopyText(cleanText);
+        await animateHtmlByBlocks(container, html, 22);
+      } catch (error) {
+        console.error(error);
+        setCurrentCopyText('');
+        container.innerHTML = `<div class="docx-render"><p><strong>Word 内容流式展示失败：</strong>${escapeHtml(error.message || '未知错误')}</p><p>已切换为原文档预览模式。</p></div>`;
+        await new Promise(r => setTimeout(r, 400));
+        container.innerHTML = buildDefaultDocxEmbedHtml(url, title);
+      }
+    }
+
+    function initChartInteractions() {
+      const board = document.getElementById('chartBoard');
+      const surface = document.getElementById('chartSurface');
+      if (!board || !surface || board.dataset.ready) return;
+      board.dataset.ready = '1';
+      let isDown = false, startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
+      board.addEventListener('mousedown', (e) => {
+        isDown = true; board.classList.add('dragging');
+        startX = e.pageX; startY = e.pageY; scrollLeft = board.scrollLeft; scrollTop = board.scrollTop;
+      });
+      window.addEventListener('mouseup', () => { isDown = false; board.classList.remove('dragging'); });
+      board.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        board.scrollLeft = scrollLeft - (e.pageX - startX);
+        board.scrollTop = scrollTop - (e.pageY - startY);
+      });
+      const syncScale = () => surface.style.transform = `scale(${appState.currentScale})`;
+      document.getElementById('zoomInBtn')?.addEventListener('click', () => { appState.currentScale = Math.min(2.4, appState.currentScale + 0.1); syncScale(); });
+      document.getElementById('zoomOutBtn')?.addEventListener('click', () => { appState.currentScale = Math.max(0.5, appState.currentScale - 0.1); syncScale(); });
+      document.getElementById('downloadChartBtn')?.addEventListener('click', () => {
+        const img = surface.querySelector('img');
+        const link = document.createElement('a');
+        link.href = img ? img.src : (appState.selectedCompany === 'xiaomi' ? XIAOMI_CHART_IMAGE_URL : DEFAULT_CHART_IMAGE_URL);
+        link.download = appState.sourceMode === 'default'
+          ? (appState.selectedCompany === 'xiaomi' ? '小米集团组织结构图.png' : '系统默认组织结构图.png')
+          : '组织结构图模板参考.png';
+        link.click();
+      });
+      syncScale();
+    }
+
+    async function renderCurrentView(view) {
+      appState.currentView = view;
+      document.querySelectorAll('[data-current-view]').forEach(btn => btn.classList.toggle('active', btn.dataset.currentView === view));
+      const titleMap = { prompt: 'AI提示词', info: 'AI辅助提取组织结构相关信息', summary: '组织结构推导摘要', chart: '生成组织结构图', reflect: '组织结构反思' };
+      const subMap = {
+        prompt: '该提示词与后续四个功能按钮共用同一个模块框展示区域。',
+        info: '按当前所选单位调用固定资料模板内容。',
+        summary: '按当前所选单位调用固定摘要模板内容。',
+        chart: '按当前所选单位调用固定组织结构图模板。',
+        reflect: '考试模式：先答题，再按题目即时判断并反馈。'
+      };
+      document.getElementById('currentCanvasTitle').textContent = titleMap[view];
+      document.getElementById('currentCanvasSub').textContent = subMap[view];
+      const body = document.getElementById('currentCanvasBody');
+      body.innerHTML = '<div class="ai-stream-shell"><div class="docx-render" id="currentStreamContainer">正在准备内容…</div></div>';
+      const container = document.getElementById('currentStreamContainer');
+      setCurrentCopyText('');
+      setCurrentTools(['prompt', 'info', 'summary'].includes(view) ? 'copy' : '');
+      if (view === 'prompt') {
+        const html = buildCurrentPromptHtml();
+        setCurrentCopyText(getPlainTextFromHtml(html));
+        await animateHtmlByBlocks(container, html, 18);
+      } else if (view === 'info') {
+        if (appState.sourceMode === 'default') {
+          if (appState.selectedCompany === 'roborock') {
+            const html = convertDocxTextToHtml(ROBOROCK_CURRENT_INFO_TEXT, '石头科技 AI辅助提取组织结构相关信息');
+            setCurrentCopyText(ROBOROCK_CURRENT_INFO_TEXT);
+            await animateHtmlByBlocks(container, html, 16);
+          } else if (appState.selectedCompany === 'xiaomi') {
+            const html = convertDocxTextToHtml(XIAOMI_CURRENT_INFO_TEXT, '小米科技 AI辅助提取组织结构相关信息');
+            setCurrentCopyText(XIAOMI_CURRENT_INFO_TEXT);
+            await animateHtmlByBlocks(container, html, 16);
+          } else {
+            await renderDocxWithTyping(container, DEFAULT_DOCX_INFO_URL, '默认模板：组织结构与岗位信息提取');
+          }
+        } else {
+          const html = buildUploadedModeInfoHtml();
+          setCurrentCopyText(getPlainTextFromHtml(html));
+          await animateHtmlByBlocks(container, html, 18);
+        }
+      } else if (view === 'summary') {
+        if (appState.sourceMode === 'default') {
+          if (appState.selectedCompany === 'roborock') {
+            const html = convertDocxTextToHtml(ROBOROCK_SUMMARY_TEXT, '石头科技 组织结构推导摘要');
+            setCurrentCopyText(ROBOROCK_SUMMARY_TEXT);
+            await animateHtmlByBlocks(container, html, 16);
+          } else if (appState.selectedCompany === 'xiaomi') {
+            const html = convertDocxTextToHtml(XIAOMI_SUMMARY_TEXT, '小米集团 组织结构推导摘要');
+            setCurrentCopyText(XIAOMI_SUMMARY_TEXT);
+            await animateHtmlByBlocks(container, html, 16);
+          } else {
+            await renderDocxWithTyping(container, DEFAULT_DOCX_SUMMARY_URL, '默认模板：组织结构推导摘要');
+          }
+        } else {
+          const html = buildUploadedModeSummaryHtml();
+          setCurrentCopyText(getPlainTextFromHtml(html));
+          await animateHtmlByBlocks(container, html, 18);
+        }
+      } else if (view === 'chart') {
+        body.innerHTML = '<div class="chart-shell" id="chartShell"></div>';
+        const shell = document.getElementById('chartShell');
+        shell.innerHTML = `<div class="chart-toolbar"><div class="notice">此处直接调用预置组织结构图文件，不再使用 AI 生成图片。若外部图片链接失效，页面会在下方给出提示。</div></div><div class="mode-row" style="margin-bottom: 14px;"><button class="small-btn" id="zoomOutBtn">缩小</button><button class="small-btn" id="zoomInBtn">放大</button><button class="small-btn" id="downloadChartBtn">下载组织结构图</button></div><div class="chart-board" id="chartBoard"><div class="chart-surface" id="chartSurface"><img id="orgChartImage" class="chart-image" src="${appState.selectedCompany === 'xiaomi' ? XIAOMI_CHART_IMAGE_URL : DEFAULT_CHART_IMAGE_URL}" alt="${appState.selectedCompany === 'xiaomi' ? '小米集团组织结构图' : '系统默认组织结构图'}" style="opacity:0; clip-path: inset(0 0 100% 0); transition: clip-path 2.6s linear, opacity 0.6s ease;" /><div id="orgChartFallback" class="chart-placeholder hidden">图片链接当前无法加载，请替换为可访问的文件链接后再试。</div></div></div>`;
+        initChartInteractions();
+        const img = document.getElementById('orgChartImage');
+        if (img) {
+          img.onerror = () => {
+            img.style.display = 'none';
+            const fallback = document.getElementById('orgChartFallback');
+            if (fallback) fallback.classList.remove('hidden');
+          };
+          requestAnimationFrame(() => {
+            img.style.opacity = '1';
+            img.style.clipPath = 'inset(0 0 0 0)';
+          });
+        }
+        setCurrentTools('');
+        setCurrentCopyText('');
+      } else if (view === 'reflect') {
+        container.innerHTML = buildReflectionExamHtml();
+        bindReflectionExamInteractions();
+      }
+      updateModuleConfirmButton('current');
+    }
+
+    document.querySelectorAll('[data-current-view]').forEach(btn => btn.addEventListener('click', () => renderCurrentView(btn.dataset.currentView)));
+
+    function initBlmInteractions() {
+      const canvas = document.getElementById('blmGrid');
+      if (canvas && !canvas.dataset.dragReady) {
+        canvas.dataset.dragReady = '1';
+        let isDown = false, startX = 0, scrollLeft = 0;
+        canvas.addEventListener('mousedown', (e) => {
+          if (e.target.closest('button')) return;
+          isDown = true; canvas.classList.add('dragging');
+          startX = e.pageX - canvas.offsetLeft; scrollLeft = canvas.scrollLeft;
+        });
+        window.addEventListener('mouseup', () => { isDown = false; canvas.classList.remove('dragging'); });
+        canvas.addEventListener('mouseleave', () => { isDown = false; canvas.classList.remove('dragging'); });
+        canvas.addEventListener('mousemove', (e) => {
+          if (!isDown) return;
+          e.preventDefault();
+          const x = e.pageX - canvas.offsetLeft;
+          const walk = (x - startX) * 1.2;
+          canvas.scrollLeft = scrollLeft - walk;
+        });
+      }
+      document.querySelectorAll('.blm-zoom-in').forEach(btn => {
+        btn.onclick = () => {
+          const card = btn.closest('.blm-card');
+          const next = Math.min(1.45, (Number(card.dataset.scale || '1') + 0.1));
+          card.dataset.scale = next.toFixed(2); card.style.setProperty('--scale-font', `${14 * next}px`);
+        };
+      });
+      document.querySelectorAll('.blm-zoom-out').forEach(btn => {
+        btn.onclick = () => {
+          const card = btn.closest('.blm-card');
+          const next = Math.max(0.9, (Number(card.dataset.scale || '1') - 0.1));
+          card.dataset.scale = next.toFixed(2); card.style.setProperty('--scale-font', `${14 * next}px`);
+        };
+      });
+      document.querySelectorAll('.blm-focus-toggle').forEach(btn => { btn.onclick = () => btn.closest('.blm-card').classList.toggle('is-focus'); });
+      document.querySelectorAll('.blm-card-head').forEach(head => { head.ondblclick = () => head.closest('.blm-card').classList.toggle('is-focus'); });
+      document.querySelectorAll('.blm-rail-btn').forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll('.blm-rail-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const target = document.getElementById(btn.dataset.blmTarget);
+          if (target) target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        };
+      });
+    }
+
+    document.querySelectorAll('.draggable').forEach(makeDraggable);
+    function makeDraggable(win) {
+      const bar = win.querySelector('.window-bar');
+      let isDown = false, startX = 0, startY = 0, originX = 0, originY = 0;
+      win.style.position = 'relative';
+      bar.addEventListener('mousedown', (e) => {
+        isDown = true; startX = e.clientX; startY = e.clientY;
+        const matrix = new DOMMatrixReadOnly(getComputedStyle(win).transform);
+        originX = matrix.m41; originY = matrix.m42; bar.style.cursor = 'grabbing';
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const dx = e.clientX - startX; const dy = e.clientY - startY;
+        win.style.transform = `translate(${originX + dx}px, ${originY + dy}px)`; win.style.zIndex = 20;
+      });
+      window.addEventListener('mouseup', () => { if (!isDown) return; isDown = false; bar.style.cursor = 'move'; });
+      bar.addEventListener('dblclick', () => {
+        win.classList.toggle('fullscreen-window');
+        if (win.classList.contains('fullscreen-window')) {
+          win.dataset.prevStyle = win.getAttribute('style') || '';
+          win.style.position = 'fixed'; win.style.inset = '24px'; win.style.width = 'auto'; win.style.height = 'auto'; win.style.transform = 'none'; win.style.zIndex = 100;
+        } else {
+          win.setAttribute('style', win.dataset.prevStyle || ''); win.style.position = 'relative';
+        }
+      });
+    }
+
+    loadSessionConfig();
+    updateStateViews();
+    document.getElementById('fillProviderDefault').click();
+    appState.blmQuestions = getBlmReflectionQuestionsByCompany().map(item => ({ ...item }));
+    initBlmInteractions();
+    renderBlmData(getBlmDataByCompany());
+    setSourceMode('default');
+    renderCompanyViewer();
+    initializeSequentialLocks();
+    bindModuleConfirmButtons();
+    setBlmView('learn');
+    renderFutureView('prompt');
+    renderCurrentView('prompt');
+    restoreLoginFromSession();
+  </script>
+</body>
+</html>
