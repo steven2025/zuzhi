@@ -1693,7 +1693,7 @@
       }
     };
 
-    const INVITE_FILE_URL = 'https://raw.githubusercontent.com/steven2025/zuzhi/84afa7db5bc26d677049373133bd8720147e55a7/%E9%82%80%E8%AF%B7%E7%A0%81.txt';
+    const INVITE_FILE_URL = 'https://glmn-1311686407.cos.ap-chengdu.myqcloud.com/%E9%82%80%E8%AF%B7%E7%A0%81.txt';
 
     const defaultConfigs = {
       openai: { providerLabel: 'ChatGPT / OpenAI', baseUrl: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini' },
@@ -2132,14 +2132,26 @@ IoT
     async function fetchInvitePairs() {
       const res = await fetch(INVITE_FILE_URL, { cache: 'no-store' });
       if (!res.ok) throw new Error('邀请码文件读取失败：HTTP ' + res.status);
+
       const text = await res.text();
-      const matches = [...text.matchAll(/([^,\s]+)\s*,\s*([^,\s]+)/g)];
-      return matches.map(item => ({ code: item[1].trim(), name: item[2].trim() }));
+      return text
+        .replace(/^\uFEFF/, '')
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          const parts = line.split(',');
+          return {
+            code: (parts[0] || '').trim(),
+            name: (parts[1] || '').trim()
+          };
+        })
+        .filter(item => item.code && item.name);
     }
 
     async function validateInviteLogin(code, name) {
       const pairs = await fetchInvitePairs();
-      return pairs.find(item => item.code === code && item.name === name) || null;
+      return pairs.find(item => item.code === code.trim() && item.name === name.trim()) || null;
     }
 
     async function restoreLoginFromSession() {
